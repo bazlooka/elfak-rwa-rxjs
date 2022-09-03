@@ -7,14 +7,16 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "watch": "webpack --watch --config webpack.config.js",
-    "db": "json-server database.json --watch"
+    "api": "json-server  --no-cors --watch ./db/database.json"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bazlooka/elfak-rwa-rxjs.git"
   },
   "keywords": [
-    "rxjs"
+    "rxjs",
+    "elfak",
+    "rwa"
   ],
   "author": "Luka Kocić",
   "license": "MIT",
