@@ -1,6 +1,6 @@
-import { IView } from './IView';
+import { IComponent } from './IComponent';
 
-export interface IEntity extends IView {
+export interface IEntity extends IComponent {
   x: number;
   y: number;
 }

@@ -1,6 +1,7 @@
-import Game from './game';
+import Game from 'game';
+import { fromEvent } from 'rxjs';
 
-(() => {
+fromEvent(window, 'load').subscribe(() => {
   const container = document.createElement('canvas');
   container.id = 'game-container';
   container.width = window.innerWidth;
@@ -8,11 +9,5 @@ import Game from './game';
   document.body.appendChild(container);
 
   const game = new Game(container);
-
-  function mainLoop(tFrame: DOMHighResTimeStamp) {
-    window.requestAnimationFrame(mainLoop);
-    game.update(tFrame);
-    game.render();
-  }
-  window.requestAnimationFrame(mainLoop);
-})();
+  game.start();
+});

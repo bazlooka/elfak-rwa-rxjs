@@ -1,15 +1,18 @@
-import { fromEvent, debounceTime } from 'rxjs';
-import { GAME_SPEED } from './config';
-import FlappyBird from './games/FlappyBird';
-import { IGame } from './interfaces/IGame';
+import { fromEvent, debounceTime, Subscription, Observable } from 'rxjs';
+import { GAME_SPEED, LARGE_TEXT_FONT } from 'config';
+import { FlappyBird } from 'games/flappyBird';
+import { IGame, IKeysDown } from 'interfaces';
+import { initializeMainLoop } from 'services';
 
 class Game {
   private container: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
 
-  private lastFrame: DOMHighResTimeStamp = 0;
-
   private selectedGame: IGame;
+
+  private frames$: Observable<[number, IKeysDown]>;
+
+  keysDown: any;
 
   constructor(container: HTMLCanvasElement) {
     if (!container.getContext) {
@@ -18,9 +21,17 @@ class Game {
     this.container = container;
     this.context = container.getContext('2d');
     this.context.imageSmoothingEnabled = false;
-    this.subscribeToResizeEvent();
 
     this.selectedGame = new FlappyBird(this.context);
+  }
+
+  start() {
+    this.subscribeToResizeEvent();
+    this.frames$ = initializeMainLoop();
+    this.frames$.subscribe(([deltaTime, keysDown]) => {
+      this.update(deltaTime, keysDown);
+      this.render();
+    });
   }
 
   subscribeToResizeEvent() {
@@ -32,11 +43,12 @@ class Game {
       });
   }
 
-  update(tFrame: DOMHighResTimeStamp) {
-    const delta = (tFrame - this.lastFrame) * GAME_SPEED;
-    this.lastFrame = tFrame;
+  update(deltaTime: number, keysDown: any) {
+    const scaledDeltaTime = deltaTime * GAME_SPEED;
 
-    this.selectedGame.update(this.context, tFrame, delta);
+    this.keysDown = keysDown;
+
+    this.selectedGame.update(scaledDeltaTime, keysDown);
   }
 
   render() {
@@ -45,7 +57,10 @@ class Game {
 
     this.context.clearRect(0, 0, screenWidth, screenHeight);
 
-    this.selectedGame.render(this.context);
+    this.selectedGame.render();
+
+    this.context.font = LARGE_TEXT_FONT;
+    this.context.fillText(JSON.stringify(this.keysDown), 50, 50);
   }
 }
 

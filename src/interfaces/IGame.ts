@@ -1,3 +1,3 @@
-import { IView } from './IView';
+import { IComponent } from './IComponent';
 
-export interface IGame extends IView {}
+export interface IGame extends IComponent {}
