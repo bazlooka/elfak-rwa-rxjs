@@ -11,14 +11,8 @@ import {
   withLatestFrom,
 } from 'rxjs';
 
-function initializeMainLoop(): Observable<[number, IKeysDown]> {
-  const frames$ = createMainLoop();
-  const bufferedKeysDown$ = getBufferedKeysDown(frames$);
-  return frames$.pipe(withLatestFrom(bufferedKeysDown$));
-}
-
-function createMainLoop() {
-  const calculateStep = (prevFrame: IFrameData) => {
+const createMainLoop = () => {
+  const calculateDelta = (prevFrame: IFrameData) => {
     return new Observable<IFrameData>((observer) => {
       window.requestAnimationFrame((currTimeStamp) => {
         const deltaTimeInMs = prevFrame
@@ -36,16 +30,16 @@ function createMainLoop() {
   };
 
   const frames$ = of(undefined).pipe(
-    expand((val) => calculateStep(val)),
+    expand((val) => calculateDelta(val)),
     filter((frame) => frame !== undefined),
     map((frame: IFrameData) => {
       return Math.min(frame.deltaTime, MAXIMUM_DELTA_TIME);
     }),
   );
   return frames$;
-}
+};
 
-function getBufferedKeysDown(frames$: Observable<number>) {
+const getBufferedKeysDown = (frames$: Observable<number>) => {
   const keysDown$ = fromEvent(document, 'keydown').pipe(
     map((event: KeyboardEvent) => {
       return event.code;
@@ -63,6 +57,12 @@ function getBufferedKeysDown(frames$: Observable<number>) {
   );
 
   return bufferedKeysDown$;
-}
+};
+
+const initializeMainLoop = (): Observable<[number, IKeysDown]> => {
+  const frames$ = createMainLoop();
+  const bufferedKeysDown$ = getBufferedKeysDown(frames$);
+  return frames$.pipe(withLatestFrom(bufferedKeysDown$));
+};
 
 export { initializeMainLoop };
