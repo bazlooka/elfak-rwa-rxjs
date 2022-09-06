@@ -12,8 +12,6 @@ class Game {
 
   private frames$: Observable<[number, IKeysDown]>;
 
-  keysDown: any;
-
   constructor(container: HTMLCanvasElement) {
     if (!container.getContext) {
       throw new Error('Canvas is not supported in this browser');
@@ -40,27 +38,20 @@ class Game {
       .subscribe((event) => {
         this.container.width = window.innerWidth;
         this.container.height = window.innerHeight;
+        this.context.imageSmoothingEnabled = false;
       });
   }
 
   update(deltaTime: number, keysDown: any) {
     const scaledDeltaTime = deltaTime * GAME_SPEED;
-
-    this.keysDown = keysDown;
-
     this.selectedGame.update(scaledDeltaTime, keysDown);
   }
 
   render() {
     const screenWidth = this.context.canvas.width;
     const screenHeight = this.context.canvas.height;
-
     this.context.clearRect(0, 0, screenWidth, screenHeight);
-
     this.selectedGame.render();
-
-    this.context.font = LARGE_TEXT_FONT;
-    this.context.fillText(JSON.stringify(this.keysDown), 50, 50);
   }
 }
 

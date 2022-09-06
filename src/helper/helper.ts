@@ -1,4 +1,5 @@
 import { API_URL } from 'config';
+import { Observable } from 'rxjs';
 
 const fetchFromApi = async <T>(
   path: string,

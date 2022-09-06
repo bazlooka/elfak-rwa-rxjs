@@ -14,7 +14,10 @@ export const MAXIMUM_DELTA_TIME = 1 / 30;
 export const MS_IN_A_SECOND = 1000;
 
 export const OBSTICLE_SPAWN_INTERVAL_MS = 2000;
+export const OBSTICLE_STARTING_POS = 30;
 export const OBSTICLE_WIDTH = 60;
 export const OBSTICLE_WINDOW_HEIGHT = 160;
 export const OBSTICLE_SPEED = 300;
-export const OBSTICLE_VERTICAL_MARIGIN = 30;
+export const OBSTICLE_MARIGIN_Y = 30;
+
+export const BACKGROUND_ASPECT_RATIO = 3.125;

@@ -5,9 +5,9 @@ import {
   PLAYER_SIZE,
 } from 'config';
 import { areRectanglesColliding } from 'helper';
-import { IGame, IKeysDown } from 'interfaces';
-import { IRectangle } from 'interfaces/IRectangle';
+import { IGame, IKeysDown, IRectangle } from 'interfaces';
 import { Observable, Subscription } from 'rxjs';
+import { Background, loadBackroundImages } from './background';
 import { Obsticle, startSpawningObsticles } from './obsticles';
 
 class FlappyBird implements IGame {
@@ -23,6 +23,8 @@ class FlappyBird implements IGame {
   private obsticles: Obsticle[];
   private obsticleSubscription: Subscription;
 
+  private backgrounds: Background[];
+
   constructor(context: CanvasRenderingContext2D) {
     this.context = context;
     this.bounds = {
@@ -35,6 +37,13 @@ class FlappyBird implements IGame {
 
     this.obsticles = [];
     this.obsticles$ = startSpawningObsticles(context);
+
+    this.backgrounds = [];
+    loadBackroundImages().subscribe((backgroundProps) => {
+      this.backgrounds = backgroundProps.map((bgProp) => {
+        return new Background(this.context, bgProp);
+      });
+    });
   }
 
   start() {
@@ -97,9 +106,17 @@ class FlappyBird implements IGame {
         this.start();
       }
     }
+
+    this.backgrounds.forEach((background) => {
+      background.update(delta);
+    });
   }
 
   render(): void {
+    this.backgrounds.forEach((background) => {
+      background.render();
+    });
+
     this.context.fillStyle = 'green';
     this.context.fillRect(
       this.bounds.x,
