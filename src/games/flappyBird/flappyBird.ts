@@ -3,12 +3,12 @@ import {
   JUMP_ACCELERATION,
   OFFSCREEN_THRESHOLD,
   PLAYER_SIZE,
-} from 'config';
+} from './config';
 import { areRectanglesColliding } from 'helper';
 import { IGame, IKeysDown, IRectangle } from 'interfaces';
 import { Observable, Subscription } from 'rxjs';
 import { Background, loadBackroundImages } from './background';
-import { Obsticle, startSpawningObsticles } from './obsticles';
+import { Obsticle, startSpawningObsticles } from './obsticle';
 
 class FlappyBird implements IGame {
   private context: CanvasRenderingContext2D;

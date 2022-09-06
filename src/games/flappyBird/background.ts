@@ -1,7 +1,7 @@
 import { filter, from, fromEvent, map, mergeMap, Observable, scan } from 'rxjs';
 
 import { Component } from 'components/component';
-import { BACKGROUND_ASPECT_RATIO } from 'config';
+import { BACKGROUND_ASPECT_RATIO } from './config';
 import { drawImage } from 'helper';
 import { IBackgroundProps } from 'interfaces';
 import { IRectangle } from 'interfaces/IRectangle';

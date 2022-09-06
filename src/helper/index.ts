@@ -1,3 +1,3 @@
-export * from './helper';
+export * from './apiUtils';
 export * from './rectCollisionDetection';
 export * from './renderUtils';

@@ -6,7 +6,7 @@ import {
   OBSTICLE_MARIGIN_Y,
   OBSTICLE_WIDTH,
   OBSTICLE_WINDOW_HEIGHT,
-} from 'config';
+} from './config';
 import { fillRect } from 'helper';
 import { IRectangle } from 'interfaces/IRectangle';
 import { interval, map } from 'rxjs';
