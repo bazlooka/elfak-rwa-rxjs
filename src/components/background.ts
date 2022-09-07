@@ -1,6 +1,6 @@
 import { BACKGROUND_ASPECT_RATIO } from 'config';
 import { Component } from './component';
-import { IBackgroundProps, IRectangle } from 'interfaces';
+import { IBackgroundProps, IGameState, IRectangle } from 'interfaces';
 import { drawImage } from 'services';
 
 class Background extends Component {
@@ -11,9 +11,10 @@ class Background extends Component {
 
   constructor(
     context: CanvasRenderingContext2D,
+    gameState: IGameState,
     backgroundProps: IBackgroundProps,
   ) {
-    super(context);
+    super(context, gameState);
 
     this.speed = backgroundProps.speed;
     this.image = backgroundProps.image;

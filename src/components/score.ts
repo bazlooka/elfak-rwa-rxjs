@@ -1,11 +1,12 @@
 import { LARGE_TEXT_FONT } from 'config';
+import { IGameState } from 'interfaces';
 import { Component } from './component';
 
 class Score extends Component {
   private _currentScore: number;
 
-  constructor(context: CanvasRenderingContext2D) {
-    super(context);
+  constructor(context: CanvasRenderingContext2D, gameState: IGameState) {
+    super(context, gameState);
   }
 
   set currentScore(currentScore: number) {

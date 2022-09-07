@@ -5,7 +5,7 @@ import {
   OBSTICLE_WINDOW_HEIGHT,
 } from 'config';
 import { Component } from './component';
-import { IRectangle } from 'interfaces';
+import { IGameState, IRectangle } from 'interfaces';
 import { drawImage, fillRect } from 'services';
 import { fromEvent } from 'rxjs';
 
@@ -24,8 +24,12 @@ class Obsticle extends Component {
   static topObsticleImg: HTMLImageElement;
   static bottomObsticleImg: HTMLImageElement;
 
-  constructor(context: CanvasRenderingContext2D, y: number) {
-    super(context, y);
+  constructor(
+    context: CanvasRenderingContext2D,
+    gameState: IGameState,
+    y: number,
+  ) {
+    super(context, gameState, y);
   }
 
   get centerX() {

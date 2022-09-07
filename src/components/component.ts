@@ -1,7 +1,14 @@
-import { IKeysDown } from 'interfaces';
+import { IGameState, IKeysDown } from 'interfaces';
 
 abstract class Component {
-  constructor(context: CanvasRenderingContext2D, ...args: any[]) {
+  protected gameState: IGameState;
+
+  constructor(
+    context: CanvasRenderingContext2D,
+    gameState: IGameState,
+    ...args: any[]
+  ) {
+    this.gameState = gameState;
     this.onCreate(context, args);
     this.onResize(context.canvas.width, context.canvas.height);
   }

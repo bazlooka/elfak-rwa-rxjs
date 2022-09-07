@@ -1,7 +1,7 @@
 import { fromEvent, debounceTime, Observable, Subscription } from 'rxjs';
 
-import { GAME_SPEED } from 'config';
-import { IKeysDown } from 'interfaces';
+import { GAME_SPEED, INITIAL_GAME_STATE } from 'config';
+import { IGameState, IKeysDown } from 'interfaces';
 import { Obsticle, Player, Background } from 'components';
 import {
   hasPlayerCollided,
@@ -11,10 +11,13 @@ import {
   isPlayerOffscreen,
   filterPassedObsticles,
 } from 'services';
+import { GameState } from 'enums';
 
 class Game {
   private container: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
+
+  private gameState: IGameState;
 
   private player: Player;
 
@@ -36,7 +39,8 @@ class Game {
 
     this.container = container;
     this.context = context;
-    this.player = new Player(context);
+    this.gameState = INITIAL_GAME_STATE;
+    this.player = new Player(context, this.gameState);
     this.obsticles = [];
     this.backgrounds = [];
   }
@@ -55,11 +59,11 @@ class Game {
       this.render(this.context);
     });
 
-    this.obsticles$ = startSpawningObsticles(this.context);
+    this.obsticles$ = startSpawningObsticles(this.context, this.gameState);
 
     loadBackroundImages().subscribe((backgroundProps) => {
       this.backgrounds = backgroundProps.map((bgProp) => {
-        return new Background(this.context, bgProp);
+        return new Background(this.context, this.gameState, bgProp);
       });
     });
   }
@@ -69,12 +73,14 @@ class Game {
       this.obsticles.push(obsticle);
     });
     this.player.start();
+    this.gameState.currentState = GameState.PLAYING;
   }
 
   die(): void {
     this.obsticles = [];
     this.obsticleSubscription.unsubscribe();
     this.player.die();
+    this.gameState.currentState = GameState.GAME_OVER;
   }
 
   update(deltaTime: number, keysDown: any) {
@@ -84,7 +90,7 @@ class Game {
 
     this.player.update(deltaTime, keysDown);
 
-    if (!this.player.dead) {
+    if (this.gameState.currentState === GameState.PLAYING) {
       this.obsticles.forEach((obsticle) => {
         obsticle.update(deltaTime);
       });

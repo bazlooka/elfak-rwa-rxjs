@@ -1,7 +1,5 @@
 import { IRectangle } from 'interfaces';
 
-const TO_RADIANS = Math.PI / 180;
-
 const fillRect = (context: CanvasRenderingContext2D, rect: IRectangle) => {
   context.fillRect(rect.x, rect.y, rect.width, rect.height);
 };
