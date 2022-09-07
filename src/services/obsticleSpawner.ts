@@ -13,8 +13,7 @@ const startSpawningObsticles = (
   return interval(OBSTICLE_SPAWN_INTERVAL_MS).pipe(
     map(() => {
       const obsticleY =
-        OBSTICLE_MARIGIN_Y +
-        Math.random() * (context.canvas.height - OBSTICLE_MARIGIN_Y);
+        OBSTICLE_MARIGIN_Y + Math.random() * (1 - OBSTICLE_MARIGIN_Y);
       return new Obsticle(context, obsticleY);
     }),
   );

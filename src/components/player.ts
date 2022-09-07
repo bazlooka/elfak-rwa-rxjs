@@ -1,13 +1,24 @@
+import { fromEvent } from 'rxjs';
+
 import { Component } from './component';
 import { IKeysDown, IRectangle } from 'interfaces';
 import { GRAVITY, JUMP_ACCELERATION, PLAYER_SIZE } from 'config';
-import { fillRect } from 'services';
+import { drawImageRegion } from 'services';
+import PLAYER_IMG from 'assets/images/player.png';
+
+const FRAME_DURATION = 1 / 15;
+const FRAME_COUNT = 8;
+const FRAME_SIZE = 32;
 
 class Player extends Component {
   private _bounds: IRectangle;
   private accelerationY: number;
   private _dead: boolean;
   private _startY: number;
+
+  private img: HTMLImageElement;
+
+  private currentTime: number;
 
   constructor(context: CanvasRenderingContext2D) {
     super(context);
@@ -44,6 +55,13 @@ class Player extends Component {
       height: PLAYER_SIZE,
     };
     this._dead = true;
+    this.currentTime = 0;
+
+    const img = new Image();
+    fromEvent(img, 'load').subscribe(() => {
+      this.img = img;
+    });
+    img.src = PLAYER_IMG;
   }
 
   onResize(newWidth: number, newHeight: number): void {
@@ -55,6 +73,7 @@ class Player extends Component {
   }
 
   update(delta: number, keysDown: IKeysDown): void {
+    this.currentTime += delta;
     if (!this._dead) {
       this.accelerationY += GRAVITY * delta;
       this.bounds.y += this.accelerationY * delta;
@@ -66,7 +85,18 @@ class Player extends Component {
   }
 
   render(ctx: CanvasRenderingContext2D): void {
-    fillRect(ctx, this.bounds);
+    if (!this.img) {
+      return;
+    }
+    const currFrame =
+      Math.floor(this.currentTime / FRAME_DURATION) % FRAME_COUNT;
+    const sourceRect: IRectangle = {
+      x: currFrame * FRAME_SIZE,
+      y: 0,
+      width: FRAME_SIZE,
+      height: FRAME_SIZE,
+    };
+    drawImageRegion(ctx, this.img, this._bounds, sourceRect);
   }
 }
 

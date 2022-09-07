@@ -6,13 +6,23 @@ import {
 } from 'config';
 import { Component } from './component';
 import { IRectangle } from 'interfaces';
-import { fillRect } from 'services';
+import { drawImage, fillRect } from 'services';
+import { fromEvent } from 'rxjs';
+
+import OBSTICLE_TOP_IMAGE from 'assets/images/obsticle-top.png';
+import OBSTICLE_BOTTOM_IMAGE from 'assets/images/obsticle-bottom.png';
+
+const OBSTICLE_ASPECT_RATIO = 14;
 
 class Obsticle extends Component {
+  private _centerYRelative: number;
   private _centerY: number;
 
   private _topObsticleBounds: IRectangle;
   private _bottomObsticleBounds: IRectangle;
+
+  static topObsticleImg: HTMLImageElement;
+  static bottomObsticleImg: HTMLImageElement;
 
   constructor(context: CanvasRenderingContext2D, y: number) {
     super(context, y);
@@ -35,18 +45,35 @@ class Obsticle extends Component {
   }
 
   onCreate(context: CanvasRenderingContext2D, [y]: any[]): void {
-    this._centerY = y;
-    const originX = context.canvas.width + OBSTICLE_STARTING_POS;
+    this._centerYRelative = y;
+
+    const centerX = context.canvas.width + OBSTICLE_STARTING_POS;
+
+    if (!Obsticle.topObsticleImg) {
+      const img = new Image();
+      fromEvent(img, 'load').subscribe(() => {
+        Obsticle.topObsticleImg = img;
+      });
+      img.src = OBSTICLE_TOP_IMAGE;
+    }
+
+    if (!Obsticle.bottomObsticleImg) {
+      const img = new Image();
+      fromEvent(img, 'load').subscribe(() => {
+        Obsticle.bottomObsticleImg = img;
+      });
+      img.src = OBSTICLE_BOTTOM_IMAGE;
+    }
 
     this._topObsticleBounds = {
-      x: originX,
+      x: centerX,
       y: 0,
       width: OBSTICLE_WIDTH,
       height: 0,
     };
 
     this._bottomObsticleBounds = {
-      x: originX,
+      x: centerX,
       y: 0,
       width: OBSTICLE_WIDTH,
       height: 0,
@@ -54,12 +81,15 @@ class Obsticle extends Component {
   }
 
   onResize(newWidth: number, newHeight: number): void {
-    this._topObsticleBounds.y =
-      this._centerY - OBSTICLE_WINDOW_HEIGHT / 2 - newHeight;
-    this._topObsticleBounds.height = newHeight;
+    this._centerY = this._centerYRelative * newHeight;
 
+    const obsticleHeight = OBSTICLE_WIDTH * OBSTICLE_ASPECT_RATIO;
+
+    this._topObsticleBounds.y =
+      this._centerY - OBSTICLE_WINDOW_HEIGHT / 2 - obsticleHeight;
+    this._topObsticleBounds.height = obsticleHeight;
     this._bottomObsticleBounds.y = this._centerY + OBSTICLE_WINDOW_HEIGHT / 2;
-    this._bottomObsticleBounds.height = newHeight;
+    this._bottomObsticleBounds.height = obsticleHeight;
   }
 
   update(delta: number): void {
@@ -69,15 +99,18 @@ class Obsticle extends Component {
   }
 
   render(ctx: CanvasRenderingContext2D): void {
-    ctx.fillStyle = 'red';
-    fillRect(ctx, this._topObsticleBounds);
-    fillRect(ctx, this._bottomObsticleBounds);
-    ctx.fillStyle = 'black';
+    if (!Obsticle.topObsticleImg || !Obsticle.bottomObsticleImg) {
+      return;
+    }
+
+    drawImage(ctx, Obsticle.topObsticleImg, this._topObsticleBounds);
+    drawImage(ctx, Obsticle.bottomObsticleImg, this._bottomObsticleBounds);
+
     fillRect(ctx, {
-      x: this.centerX,
-      y: this.centerY,
-      width: 5,
-      height: 5,
+      x: this.centerX - 2,
+      y: this.centerY - 2,
+      width: 4,
+      height: 4,
     });
   }
 }
