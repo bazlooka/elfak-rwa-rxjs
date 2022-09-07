@@ -1,12 +1,11 @@
 import { LARGE_TEXT_FONT } from 'config';
 import { Component } from './component';
 
-class ScoreComponent extends Component {
+class Score extends Component {
   private _currentScore: number;
 
   constructor(context: CanvasRenderingContext2D) {
     super(context);
-    this._currentScore = 0;
   }
 
   set currentScore(currentScore: number) {
@@ -20,20 +19,25 @@ class ScoreComponent extends Component {
     return this._currentScore;
   }
 
+  onCreate(context: CanvasRenderingContext2D): void {
+    this._currentScore = 0;
+  }
+
+  onResize(newWidth: number, newHeight: number): void {}
+
   update(delta: number): void {}
 
-  render(): void {
+  render(ctx: CanvasRenderingContext2D): void {
     const scoreText = 'Score: ' + this._currentScore;
 
-    this.context.font = LARGE_TEXT_FONT;
-    this.context.fillStyle = 'black';
-    this.context.fillText(
+    ctx.font = LARGE_TEXT_FONT;
+    ctx.fillStyle = 'black';
+    ctx.fillText(
       scoreText,
-      (this.context.canvas.width - this.context.measureText(scoreText).width) /
-        2,
+      (ctx.canvas.width - ctx.measureText(scoreText).width) / 2,
       50,
     );
   }
 }
 
-export default ScoreComponent;
+export default Score;

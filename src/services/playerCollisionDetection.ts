@@ -1,4 +1,5 @@
 import { Obsticle, Player } from 'components';
+import { OFFSCREEN_THRESHOLD } from 'config';
 
 import { areRectanglesColliding } from './rectCollisionDetection';
 
@@ -11,4 +12,11 @@ const hasPlayerCollided = (player: Player, obsticles: Obsticle[]): boolean => {
   });
 };
 
-export { hasPlayerCollided };
+const isPlayerOffscreen = (player: Player, canvasHeight: number): boolean => {
+  return (
+    player.bounds.y < -OFFSCREEN_THRESHOLD ||
+    player.bounds.y > canvasHeight + OFFSCREEN_THRESHOLD
+  );
+};
+
+export { hasPlayerCollided, isPlayerOffscreen };

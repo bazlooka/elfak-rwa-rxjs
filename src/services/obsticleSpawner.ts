@@ -1,6 +1,10 @@
 import { interval, map, Observable } from 'rxjs';
 
-import { OBSTICLE_MARIGIN_Y, OBSTICLE_SPAWN_INTERVAL_MS } from 'config';
+import {
+  OBSTICLE_MARIGIN_Y,
+  OBSTICLE_OFFSCREEN_THRESHOLD,
+  OBSTICLE_SPAWN_INTERVAL_MS,
+} from 'config';
 import { Obsticle } from 'components';
 
 const startSpawningObsticles = (
@@ -16,4 +20,10 @@ const startSpawningObsticles = (
   );
 };
 
-export { startSpawningObsticles };
+const filterPassedObsticles = (obsticles: Obsticle[]) => {
+  return obsticles.filter((obsticle) => {
+    return obsticle.centerX > -OBSTICLE_OFFSCREEN_THRESHOLD;
+  });
+};
+
+export { startSpawningObsticles, filterPassedObsticles };

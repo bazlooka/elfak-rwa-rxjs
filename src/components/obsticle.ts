@@ -9,40 +9,76 @@ import { IRectangle } from 'interfaces';
 import { fillRect } from 'services';
 
 class Obsticle extends Component {
-  topObsticleBounds: IRectangle;
-  bottomObsticleBounds: IRectangle;
+  private _centerY: number;
+
+  private _topObsticleBounds: IRectangle;
+  private _bottomObsticleBounds: IRectangle;
 
   constructor(context: CanvasRenderingContext2D, y: number) {
-    super(context);
+    super(context, y);
+  }
 
+  get centerX() {
+    return this._topObsticleBounds.x + OBSTICLE_WIDTH / 2;
+  }
+
+  get centerY() {
+    return this._centerY;
+  }
+
+  get topObsticleBounds() {
+    return this._topObsticleBounds;
+  }
+
+  get bottomObsticleBounds() {
+    return this._bottomObsticleBounds;
+  }
+
+  onCreate(context: CanvasRenderingContext2D, [y]: any[]): void {
+    this._centerY = y;
     const originX = context.canvas.width + OBSTICLE_STARTING_POS;
-    const originY = y;
-    const obsticleHeight = this.context.canvas.height;
 
-    this.topObsticleBounds = {
+    this._topObsticleBounds = {
       x: originX,
-      y: originY - OBSTICLE_WINDOW_HEIGHT / 2 - obsticleHeight,
+      y: 0,
       width: OBSTICLE_WIDTH,
-      height: obsticleHeight,
+      height: 0,
     };
 
-    this.bottomObsticleBounds = {
+    this._bottomObsticleBounds = {
       x: originX,
-      y: originY + OBSTICLE_WINDOW_HEIGHT / 2,
+      y: 0,
       width: OBSTICLE_WIDTH,
-      height: obsticleHeight,
+      height: 0,
     };
+  }
+
+  onResize(newWidth: number, newHeight: number): void {
+    this._topObsticleBounds.y =
+      this._centerY - OBSTICLE_WINDOW_HEIGHT / 2 - newHeight;
+    this._topObsticleBounds.height = newHeight;
+
+    this._bottomObsticleBounds.y = this._centerY + OBSTICLE_WINDOW_HEIGHT / 2;
+    this._bottomObsticleBounds.height = newHeight;
   }
 
   update(delta: number): void {
     const xTranslation = delta * OBSTICLE_SPEED;
-    this.topObsticleBounds.x -= xTranslation;
-    this.bottomObsticleBounds.x -= xTranslation;
+    this._topObsticleBounds.x -= xTranslation;
+    this._bottomObsticleBounds.x -= xTranslation;
   }
 
-  render(): void {
-    fillRect(this.context, this.topObsticleBounds);
-    fillRect(this.context, this.bottomObsticleBounds);
+  render(ctx: CanvasRenderingContext2D): void {
+    ctx.fillStyle = 'red';
+    fillRect(ctx, this._topObsticleBounds);
+    fillRect(ctx, this._bottomObsticleBounds);
+    ctx.fillStyle = 'black';
+    fillRect(ctx, {
+      x: this.centerX,
+      y: this.centerY,
+      width: 5,
+      height: 5,
+    });
   }
 }
 

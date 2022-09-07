@@ -8,6 +8,8 @@ import {
   loadBackroundImages,
   startSpawningObsticles,
   initializeMainLoop,
+  isPlayerOffscreen,
+  filterPassedObsticles,
 } from 'services';
 
 class Game {
@@ -28,32 +30,32 @@ class Game {
     if (!container.getContext) {
       throw new Error('Canvas is not supported in this browser');
     }
+
+    const context = container.getContext('2d');
+    context.imageSmoothingEnabled = false;
+
     this.container = container;
-    this.context = container.getContext('2d');
-    this.context.imageSmoothingEnabled = false;
-
-    this.player = new Player(this.context);
-
+    this.context = context;
+    this.player = new Player(context);
     this.obsticles = [];
-    this.obsticles$ = startSpawningObsticles(this.context);
-
     this.backgrounds = [];
   }
 
   init() {
-    this.frames$ = initializeMainLoop();
-    this.frames$.subscribe(([deltaTime, keysDown]) => {
-      this.update(deltaTime, keysDown);
-      this.render();
-    });
-
     fromEvent(window, 'resize')
       .pipe(debounceTime(100))
-      .subscribe((event) => {
-        this.container.width = window.innerWidth;
-        this.container.height = window.innerHeight;
-        this.context.imageSmoothingEnabled = false;
+      .subscribe(() => {
+        this.resize(window.innerWidth, window.innerHeight);
       });
+
+    this.frames$ = initializeMainLoop();
+    this.frames$.subscribe(([deltaTime, keysDown]) => {
+      const scaledDeltaTime = deltaTime * GAME_SPEED;
+      this.update(scaledDeltaTime, keysDown);
+      this.render(this.context);
+    });
+
+    this.obsticles$ = startSpawningObsticles(this.context);
 
     loadBackroundImages().subscribe((backgroundProps) => {
       this.backgrounds = backgroundProps.map((bgProp) => {
@@ -76,18 +78,23 @@ class Game {
   }
 
   update(deltaTime: number, keysDown: any) {
-    const scaledDeltaTime = deltaTime * GAME_SPEED;
+    this.backgrounds.forEach((background) => {
+      background.update(deltaTime);
+    });
+
+    this.player.update(deltaTime, keysDown);
 
     if (!this.player.dead) {
       this.obsticles.forEach((obsticle) => {
-        obsticle.update(scaledDeltaTime);
+        obsticle.update(deltaTime);
       });
 
-      this.obsticles = this.obsticles.filter((obsticle) => {
-        return obsticle.topObsticleBounds.x > -50;
-      });
+      this.obsticles = filterPassedObsticles(this.obsticles);
 
-      if (hasPlayerCollided(this.player, this.obsticles)) {
+      if (
+        hasPlayerCollided(this.player, this.obsticles) ||
+        isPlayerOffscreen(this.player, this.context.canvas.height)
+      ) {
         this.die();
       }
     } else {
@@ -95,26 +102,36 @@ class Game {
         this.start();
       }
     }
-
-    this.backgrounds.forEach((background) => {
-      background.update(scaledDeltaTime);
-    });
-
-    this.player.update(scaledDeltaTime, keysDown);
   }
 
-  render() {
-    const screenWidth = this.context.canvas.width;
-    const screenHeight = this.context.canvas.height;
-    this.context.clearRect(0, 0, screenWidth, screenHeight);
+  render(ctx: CanvasRenderingContext2D) {
+    const screenWidth = ctx.canvas.width;
+    const screenHeight = ctx.canvas.height;
+    ctx.clearRect(0, 0, screenWidth, screenHeight);
 
     this.backgrounds.forEach((background) => {
-      background.render();
+      background.render(ctx);
     });
     this.obsticles.forEach((obsticle) => {
-      obsticle.render();
+      obsticle.render(ctx);
     });
-    this.player.render();
+    this.player.render(ctx);
+  }
+
+  resize(newWidth: number, newHeight: number) {
+    this.container.width = newWidth;
+    this.container.height = newHeight;
+    this.context.imageSmoothingEnabled = false;
+
+    this.player.onResize(newWidth, newHeight);
+
+    this.backgrounds.forEach((background) => {
+      background.onResize(newWidth, newHeight);
+    });
+
+    this.obsticles.forEach((obsticle) => {
+      obsticle.onResize(newWidth, newHeight);
+    });
   }
 }
 

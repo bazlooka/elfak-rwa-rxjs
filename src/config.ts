@@ -29,5 +29,6 @@ export const OBSTICLE_WIDTH = 60;
 export const OBSTICLE_WINDOW_HEIGHT = 160;
 export const OBSTICLE_SPEED = 300;
 export const OBSTICLE_MARIGIN_Y = 30;
+export const OBSTICLE_OFFSCREEN_THRESHOLD = 50;
 
 export const BACKGROUND_ASPECT_RATIO = 3.125;

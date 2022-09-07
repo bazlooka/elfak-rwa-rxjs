@@ -1,27 +1,16 @@
 import { Component } from './component';
 import { IKeysDown, IRectangle } from 'interfaces';
-import {
-  GRAVITY,
-  JUMP_ACCELERATION,
-  OFFSCREEN_THRESHOLD,
-  PLAYER_SIZE,
-} from 'config';
+import { GRAVITY, JUMP_ACCELERATION, PLAYER_SIZE } from 'config';
+import { fillRect } from 'services';
 
 class Player extends Component {
   private _bounds: IRectangle;
   private accelerationY: number;
   private _dead: boolean;
+  private _startY: number;
 
   constructor(context: CanvasRenderingContext2D) {
     super(context);
-
-    this._bounds = {
-      x: (context.canvas.width - PLAYER_SIZE) / 2,
-      y: (context.canvas.height - PLAYER_SIZE) / 2,
-      width: PLAYER_SIZE,
-      height: PLAYER_SIZE,
-    };
-    this._dead = true;
   }
 
   get bounds() {
@@ -44,7 +33,25 @@ class Player extends Component {
 
   die(): void {
     this._dead = true;
-    this.bounds.y = (this.context.canvas.height - PLAYER_SIZE) / 2;
+    this.bounds.y = this._startY;
+  }
+
+  onCreate(context: CanvasRenderingContext2D): void {
+    this._bounds = {
+      x: (context.canvas.width - PLAYER_SIZE) / 2,
+      y: (context.canvas.height - PLAYER_SIZE) / 2,
+      width: PLAYER_SIZE,
+      height: PLAYER_SIZE,
+    };
+    this._dead = true;
+  }
+
+  onResize(newWidth: number, newHeight: number): void {
+    this._startY = (newHeight - PLAYER_SIZE) / 2;
+    this._bounds.x = (newWidth - PLAYER_SIZE) / 2;
+    if (this.dead) {
+      this._bounds.y = (newHeight - PLAYER_SIZE) / 2;
+    }
   }
 
   update(delta: number, keysDown: IKeysDown): void {
@@ -55,23 +62,11 @@ class Player extends Component {
       if (keysDown['Space']) {
         this.jump();
       }
-
-      if (
-        this.bounds.y < -OFFSCREEN_THRESHOLD ||
-        this.bounds.y > this.context.canvas.height + OFFSCREEN_THRESHOLD
-      ) {
-        this.die();
-      }
     }
   }
 
-  render(): void {
-    this.context.fillRect(
-      this.bounds.x,
-      this.bounds.y,
-      this.bounds.width,
-      this.bounds.height,
-    );
+  render(ctx: CanvasRenderingContext2D): void {
+    fillRect(ctx, this.bounds);
   }
 }
 
