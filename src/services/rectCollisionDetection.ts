@@ -1,4 +1,4 @@
-import { IRectangle } from 'interfaces/IRectangle';
+import { IRectangle } from 'interfaces';
 
 const areRectanglesColliding = (
   rect1: IRectangle,

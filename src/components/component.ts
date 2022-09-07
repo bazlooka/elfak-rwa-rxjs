@@ -1,4 +1,4 @@
-import { IComponent } from 'interfaces';
+import { IComponent, IKeysDown } from 'interfaces';
 
 abstract class Component implements IComponent {
   protected context: CanvasRenderingContext2D;
@@ -6,7 +6,7 @@ abstract class Component implements IComponent {
   constructor(context: CanvasRenderingContext2D) {
     this.context = context;
   }
-  update(delta: number): void {}
+  update(delta: number, keysDown: IKeysDown): void {}
   render(): void {}
 }
 

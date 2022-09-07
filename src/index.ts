@@ -1,5 +1,6 @@
-import Game from 'game';
 import { fromEvent } from 'rxjs';
+
+import Game from 'game';
 
 fromEvent(window, 'load').subscribe(() => {
   const container = document.createElement('canvas');
@@ -9,5 +10,5 @@ fromEvent(window, 'load').subscribe(() => {
   document.body.appendChild(container);
 
   const game = new Game(container);
-  game.start();
+  game.init();
 });

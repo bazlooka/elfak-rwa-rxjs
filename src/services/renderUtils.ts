@@ -1,4 +1,4 @@
-import { IRectangle } from 'interfaces/IRectangle';
+import { IRectangle } from 'interfaces';
 
 const fillRect = (context: CanvasRenderingContext2D, rect: IRectangle) => {
   context.fillRect(rect.x, rect.y, rect.width, rect.height);

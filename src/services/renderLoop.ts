@@ -1,5 +1,3 @@
-import { MAXIMUM_DELTA_TIME, MS_IN_A_SECOND } from 'config';
-import { IFrameData, IKeysDown } from 'interfaces';
 import {
   buffer,
   expand,
@@ -11,6 +9,15 @@ import {
   withLatestFrom,
 } from 'rxjs';
 
+import { MAXIMUM_DELTA_TIME } from 'config';
+import { IFrameData, IKeysDown } from 'interfaces';
+
+const initializeMainLoop = (): Observable<[number, IKeysDown]> => {
+  const frames$ = createMainLoop();
+  const bufferedKeysDown$ = getBufferedKeysDown(frames$);
+  return frames$.pipe(withLatestFrom(bufferedKeysDown$));
+};
+
 const createMainLoop = () => {
   const calculateDelta = (prevFrame: IFrameData) => {
     return new Observable<IFrameData>((observer) => {
@@ -19,6 +26,7 @@ const createMainLoop = () => {
           ? currTimeStamp - prevFrame.timeStamp
           : 0;
 
+        const MS_IN_A_SECOND = 1000;
         const deltaTime = deltaTimeInMs / MS_IN_A_SECOND;
 
         observer.next({
@@ -57,12 +65,6 @@ const getBufferedKeysDown = (frames$: Observable<number>) => {
   );
 
   return bufferedKeysDown$;
-};
-
-const initializeMainLoop = (): Observable<[number, IKeysDown]> => {
-  const frames$ = createMainLoop();
-  const bufferedKeysDown$ = getBufferedKeysDown(frames$);
-  return frames$.pipe(withLatestFrom(bufferedKeysDown$));
 };
 
 export { initializeMainLoop };
