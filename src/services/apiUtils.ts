@@ -1,4 +1,5 @@
 import { API_URL } from 'config';
+import { IPlayerProfile } from 'interfaces/IPlayerProfile';
 
 const fetchFromApi = async <T>(
   path: string,
@@ -11,4 +12,14 @@ const fetchFromApi = async <T>(
   return res.json() as Promise<T>;
 };
 
-export { fetchFromApi };
+const fetchPlayerProfile = async (
+  nickname: string,
+): Promise<IPlayerProfile> => {
+  return fetchFromApi<IPlayerProfile>('/players?nickname=' + nickname);
+};
+
+const postPlayerProfile = (player: IPlayerProfile): void => {
+  
+};
+
+export { fetchFromApi, fetchPlayerProfile };

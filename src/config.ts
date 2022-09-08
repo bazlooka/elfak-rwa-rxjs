@@ -14,10 +14,18 @@ export const BACKGROUNDS = [
 
 export const INITIAL_GAME_STATE: IGameState = {
   currentState: GameState.INITIAL,
+  score: 0,
+  highscore: 0,
+  nickname: '',
+  electrons: 0,
+  playerId: 0,
 };
 
 export const API_URL = 'http://localhost:3000';
-export const LARGE_TEXT_FONT = '2rem "Press Start 2P"';
+
+export const SMALL_TEXT_FONT = '1rem "Press Start 2P"';
+export const MEDIUM_TEXT_FONT = '2rem "Press Start 2P"';
+export const LARGE_TEXT_FONT = '3rem "Press Start 2P"';
 
 export const GAME_SPEED = 1;
 

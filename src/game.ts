@@ -2,7 +2,7 @@ import { fromEvent, debounceTime, Observable, Subscription } from 'rxjs';
 
 import { GAME_SPEED, INITIAL_GAME_STATE } from 'config';
 import { IGameState, IKeysDown } from 'interfaces';
-import { Obsticle, Player, Background } from 'components';
+import { Obsticle, Player, Background, Score } from 'components';
 import {
   hasPlayerCollided,
   loadBackroundImages,
@@ -28,6 +28,7 @@ class Game {
   private obsticleSubscription: Subscription;
 
   private backgrounds: Background[];
+  private score: Score;
 
   constructor(container: HTMLCanvasElement) {
     if (!container.getContext) {
@@ -41,6 +42,7 @@ class Game {
     this.context = context;
     this.gameState = INITIAL_GAME_STATE;
     this.player = new Player(context, this.gameState);
+    this.score = new Score(context, this.gameState);
     this.obsticles = [];
     this.backgrounds = [];
   }
@@ -74,6 +76,7 @@ class Game {
     });
     this.player.start();
     this.gameState.currentState = GameState.PLAYING;
+    this.gameState.score = 0;
   }
 
   die(): void {
@@ -89,6 +92,7 @@ class Game {
     });
 
     this.player.update(deltaTime, keysDown);
+    this.score.update(deltaTime);
 
     if (this.gameState.currentState === GameState.PLAYING) {
       this.obsticles.forEach((obsticle) => {
@@ -122,6 +126,8 @@ class Game {
       obsticle.render(ctx);
     });
     this.player.render(ctx);
+
+    this.score.render(ctx);
   }
 
   resize(newWidth: number, newHeight: number) {

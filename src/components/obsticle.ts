@@ -15,14 +15,16 @@ import OBSTICLE_BOTTOM_IMAGE from 'assets/images/obsticle-bottom.png';
 const OBSTICLE_ASPECT_RATIO = 14;
 
 class Obsticle extends Component {
+  static topObsticleImg: HTMLImageElement;
+  static bottomObsticleImg: HTMLImageElement;
+
   private _centerYRelative: number;
   private _centerY: number;
 
   private _topObsticleBounds: IRectangle;
   private _bottomObsticleBounds: IRectangle;
 
-  static topObsticleImg: HTMLImageElement;
-  static bottomObsticleImg: HTMLImageElement;
+  private _passed: boolean;
 
   constructor(
     context: CanvasRenderingContext2D,
@@ -50,6 +52,7 @@ class Obsticle extends Component {
 
   onCreate(context: CanvasRenderingContext2D, [y]: any[]): void {
     this._centerYRelative = y;
+    this._passed = false;
 
     const centerX = context.canvas.width + OBSTICLE_STARTING_POS;
 
@@ -100,6 +103,11 @@ class Obsticle extends Component {
     const xTranslation = delta * OBSTICLE_SPEED;
     this._topObsticleBounds.x -= xTranslation;
     this._bottomObsticleBounds.x -= xTranslation;
+
+    if (!this._passed && this.centerX < this.context.canvas.width / 2) {
+      this._passed = true;
+      this.gameState.score++;
+    }
   }
 
   render(ctx: CanvasRenderingContext2D): void {
