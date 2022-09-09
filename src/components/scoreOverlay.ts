@@ -1,14 +1,11 @@
 import { LARGE_TEXT_FONT, MEDIUM_TEXT_FONT, SMALL_TEXT_FONT } from 'config';
 import { GameState } from 'enums';
-import { IGameState, IKeysDown } from 'interfaces';
-import { drawCenteredText, drawText } from 'services';
+import Game from 'game';
+import { IKeysDown } from 'interfaces';
+import { drawCenteredText, drawText, fillRect } from 'services';
 import { Component } from './component';
 
 class ScoreOverlay extends Component {
-  constructor(context: CanvasRenderingContext2D, gameState: IGameState) {
-    super(context, gameState);
-  }
-
   onCreate(): void {}
 
   onResize(newWidth: number, newHeight: number): void {}
@@ -18,15 +15,25 @@ class ScoreOverlay extends Component {
   render(): void {
     switch (this.gameState.currentState) {
       case GameState.READY:
+        this.renderDarkenScreen();
         this.renderJumpToStart();
         this.renderHighscore();
+        this.renderControls();
+        this.renderElectrons();
         break;
       case GameState.PLAYING:
         this.renderCurrentScore();
+        this.renderElectrons();
         break;
       case GameState.GAME_OVER:
+        this.renderDarkenScreen();
         this.renderGameOver();
         this.renderHighscore();
+        this.renderControls();
+        this.renderElectrons();
+        break;
+      case GameState.ENTER_NICKNAME:
+        this.renderDarkenScreen();
         break;
     }
   }
@@ -54,7 +61,6 @@ class ScoreOverlay extends Component {
 
   renderHighscore(): void {
     const highscoreText = `Highscore: ${this.gameState.player.highscore}`;
-
     drawCenteredText(
       this.context,
       this.gameState.player.nickname,
@@ -69,16 +75,38 @@ class ScoreOverlay extends Component {
       this.context.canvas.width / 2,
       this.context.canvas.height - 50,
     );
+  }
+
+  renderControls() {
+    drawText(
+      this.context,
+      '[L]-Leaderboard',
+      SMALL_TEXT_FONT,
+      10,
+      this.context.canvas.height - 30,
+    );
     drawText(
       this.context,
       '[Spacebar]-Jump',
       SMALL_TEXT_FONT,
-      20,
-      this.context.canvas.height - 20,
+      10,
+      this.context.canvas.height - 10,
+    );
+  }
+
+  renderElectrons() {
+    const electronsText = `Electrons: ${this.gameState.player.electrons}`;
+    drawCenteredText(
+      this.context,
+      electronsText,
+      SMALL_TEXT_FONT,
+      this.context.canvas.width / 2,
+      this.context.canvas.height - 10,
     );
   }
 
   renderGameOver() {
+    const scoreText = `Score: ${this.gameState.score}`;
     drawCenteredText(
       this.context,
       'GAME OVER',
@@ -86,7 +114,6 @@ class ScoreOverlay extends Component {
       this.context.canvas.width / 2,
       100,
     );
-    const scoreText = `Score: ${this.gameState.score}`;
     drawCenteredText(
       this.context,
       scoreText,
@@ -94,6 +121,17 @@ class ScoreOverlay extends Component {
       this.context.canvas.width / 2,
       150,
     );
+  }
+
+  renderDarkenScreen() {
+    this.context.fillStyle = 'rgba(1, 1, 1, 0.3)';
+    this.context.fillRect(
+      0,
+      0,
+      this.context.canvas.width,
+      this.context.canvas.height,
+    );
+    this.context.fillStyle = 'rgba(1, 1, 1, 1)';
   }
 }
 

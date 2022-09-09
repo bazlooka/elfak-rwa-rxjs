@@ -1,21 +1,23 @@
 import { IGameState, IKeysDown } from 'interfaces';
 
-abstract class Component {
+abstract class Component<Props = object> {
   protected readonly context: CanvasRenderingContext2D;
   protected readonly gameState: IGameState;
+  protected readonly props?: Props;
 
   constructor(
     context: CanvasRenderingContext2D,
     gameState: IGameState,
-    ...args: any[]
+    props?: Props,
   ) {
     this.context = context;
     this.gameState = gameState;
-    this.onCreate(args);
+    this.props = props;
+    this.onCreate();
     this.onResize(context.canvas.width, context.canvas.height);
   }
 
-  abstract onCreate(...args: any[]): void;
+  abstract onCreate(): void;
   abstract onResize(newWidth: number, newHeight: number): void;
   abstract update(delta: number, keysDown: IKeysDown): void;
   abstract render(): void;

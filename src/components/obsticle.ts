@@ -1,20 +1,25 @@
 import {
+  ELECTRON_SIZE,
   OBSTICLE_ASPECT_RATIO,
+  OBSTICLE_MARIGIN_Y,
   OBSTICLE_SPEED,
   OBSTICLE_STARTING_POS,
   OBSTICLE_WIDTH,
   OBSTICLE_WINDOW_HEIGHT,
 } from 'config';
 import { Component } from './component';
-import { IRectangle } from 'interfaces';
-import { drawImage, fillRect } from 'services';
+import { IKeysDown, IRectangle } from 'interfaces';
+import { drawImage } from 'services';
 import { fromEvent } from 'rxjs';
 
 import OBSTICLE_TOP_IMAGE from 'assets/images/obsticle-top.png';
 import OBSTICLE_BOTTOM_IMAGE from 'assets/images/obsticle-bottom.png';
 import { GameState } from 'enums';
+import { IObsticleProps } from 'interfaces/IObsticleProps';
+import { Electron } from './electron';
+import { IElectronProps } from 'interfaces/IElectronProps';
 
-class Obsticle extends Component {
+class Obsticle extends Component<IObsticleProps> {
   static topObsticleImg: HTMLImageElement;
   static bottomObsticleImg: HTMLImageElement;
 
@@ -25,6 +30,8 @@ class Obsticle extends Component {
   private _bottomObsticleBounds: IRectangle;
 
   private _passed: boolean;
+
+  private _electron: Electron;
 
   get centerX() {
     return this._topObsticleBounds.x + OBSTICLE_WIDTH / 2;
@@ -42,9 +49,12 @@ class Obsticle extends Component {
     return this._bottomObsticleBounds;
   }
 
-  onCreate([y]: any[]): void {
-    this._centerYRelative = y;
+  onCreate(): void {
     this._passed = false;
+    this._centerYRelative =
+      OBSTICLE_MARIGIN_Y + Math.random() * (1 - OBSTICLE_MARIGIN_Y);
+
+    this._centerY = this._centerYRelative * this.context.canvas.height;
 
     const centerX = this.context.canvas.width + OBSTICLE_STARTING_POS;
 
@@ -77,6 +87,23 @@ class Obsticle extends Component {
       width: OBSTICLE_WIDTH,
       height: 0,
     };
+
+    if (Math.floor(Math.random() * 2) === 0) {
+      this.spawnElectron();
+    }
+  }
+
+  spawnElectron() {
+    const elProps: IElectronProps = {
+      player: this.props.player,
+      bounds: {
+        x: this.centerX - ELECTRON_SIZE / 2,
+        y: this.centerY - ELECTRON_SIZE / 2,
+        width: ELECTRON_SIZE,
+        height: ELECTRON_SIZE,
+      },
+    };
+    this._electron = new Electron(this.context, this.gameState, elProps);
   }
 
   onResize(newWidth: number, newHeight: number): void {
@@ -89,17 +116,21 @@ class Obsticle extends Component {
     this._topObsticleBounds.height = obsticleHeight;
     this._bottomObsticleBounds.y = this._centerY + OBSTICLE_WINDOW_HEIGHT / 2;
     this._bottomObsticleBounds.height = obsticleHeight;
+    if (this._electron) {
+    }
   }
 
-  update(delta: number): void {
+  update(delta: number, keysDown: IKeysDown): void {
     if (this.gameState.currentState === GameState.PLAYING) {
       const xTranslation = delta * OBSTICLE_SPEED;
       this._topObsticleBounds.x -= xTranslation;
       this._bottomObsticleBounds.x -= xTranslation;
-
       if (!this._passed && this.centerX < this.context.canvas.width / 2) {
         this._passed = true;
         this.gameState.score++;
+      }
+      if (this._electron) {
+        this._electron.update(delta, keysDown, xTranslation);
       }
     }
   }
@@ -108,20 +139,15 @@ class Obsticle extends Component {
     if (!Obsticle.topObsticleImg || !Obsticle.bottomObsticleImg) {
       return;
     }
-
     drawImage(this.context, Obsticle.topObsticleImg, this._topObsticleBounds);
     drawImage(
       this.context,
       Obsticle.bottomObsticleImg,
       this._bottomObsticleBounds,
     );
-
-    fillRect(this.context, {
-      x: this.centerX - 2,
-      y: this.centerY - 2,
-      width: 4,
-      height: 4,
-    });
+    if (this._electron) {
+      this._electron.render();
+    }
   }
 }
 

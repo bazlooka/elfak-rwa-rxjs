@@ -14,20 +14,20 @@ import {
 } from 'services';
 import { GameState } from 'enums';
 import { EnterNickname } from 'components/enterNickname';
+import { Leaderboard } from 'components/leaderboard';
 
 class Game {
-  private container: HTMLCanvasElement;
-  private context: CanvasRenderingContext2D;
+  private readonly container: HTMLCanvasElement;
+  private readonly context: CanvasRenderingContext2D;
 
   private readonly gameState: IGameState;
 
   private readonly player: Player;
   private readonly score: ScoreOverlay;
   private readonly enterNickname: EnterNickname;
+  private readonly leaderboard: Leaderboard;
 
   private backgrounds: Background[];
-
-  private frames$: Observable<[number, IKeysDown]>;
 
   private obsticles$: Observable<Obsticle>;
   private obsticles: Obsticle[];
@@ -47,6 +47,7 @@ class Game {
     this.player = new Player(context, this.gameState);
     this.score = new ScoreOverlay(context, this.gameState);
     this.enterNickname = new EnterNickname(context, this.gameState);
+    this.leaderboard = new Leaderboard(context, this.gameState);
     this.obsticles = [];
     this.backgrounds = [];
   }
@@ -58,8 +59,7 @@ class Game {
         this.resize(window.innerWidth, window.innerHeight);
       });
 
-    this.frames$ = initializeMainLoop();
-    this.frames$.subscribe(([deltaTime, keysDown]) => {
+    initializeMainLoop().subscribe(([deltaTime, keysDown]) => {
       const scaledDeltaTime = deltaTime * GAME_SPEED;
       this.update(scaledDeltaTime, keysDown);
       this.render();
@@ -70,6 +70,12 @@ class Game {
         return new Background(this.context, this.gameState, bgProp);
       });
     });
+
+    this.obsticles$ = startSpawningObsticles(
+      this.context,
+      this.gameState,
+      this.player,
+    );
   }
 
   startRound() {
@@ -86,6 +92,7 @@ class Game {
     this.obsticleSubscription.unsubscribe();
     this.player.die();
     this.gameState.currentState = GameState.GAME_OVER;
+
     if (this.gameState.score > this.gameState.player.highscore) {
       this.gameState.player.highscore = this.gameState.score;
       putPlayerProfile(this.gameState.player).then((player) => {
@@ -94,38 +101,8 @@ class Game {
     }
   }
 
-  resize(newWidth: number, newHeight: number) {
-    this.container.width = newWidth;
-    this.container.height = newHeight;
-    this.context.imageSmoothingEnabled = false;
-
-    this.backgrounds.forEach((background) => {
-      background.onResize(newWidth, newHeight);
-    });
-    this.obsticles.forEach((obsticle) => {
-      obsticle.onResize(newWidth, newHeight);
-    });
-    this.player.onResize(newWidth, newHeight);
-    this.score.onResize(newWidth, newHeight);
-    this.enterNickname.onResize(newWidth, newHeight);
-  }
-
-  update(deltaTime: number, keysDown: IKeysDown) {
-    this.backgrounds.forEach((background) => {
-      background.update(deltaTime);
-    });
-    this.obsticles.forEach((obsticle) => {
-      obsticle.update(deltaTime);
-    });
-    this.player.update(deltaTime, keysDown);
-    this.score.update(deltaTime, keysDown);
-    this.enterNickname.update(deltaTime, keysDown);
-
+  updateLogic(deltaTime: number, keysDown: IKeysDown) {
     switch (this.gameState.currentState) {
-      case GameState.FETCHING_PLAYER:
-        this.obsticles$ = startSpawningObsticles(this.context, this.gameState);
-        this.gameState.currentState = GameState.READY;
-        break;
       case GameState.PLAYING:
         this.obsticles = filterPassedObsticles(this.obsticles);
         if (
@@ -144,6 +121,38 @@ class Game {
     }
   }
 
+  resize(newWidth: number, newHeight: number) {
+    this.container.width = newWidth;
+    this.container.height = newHeight;
+    this.context.imageSmoothingEnabled = false;
+
+    this.backgrounds.forEach((background) => {
+      background.onResize(newWidth, newHeight);
+    });
+    this.obsticles.forEach((obsticle) => {
+      obsticle.onResize(newWidth, newHeight);
+    });
+    this.player.onResize(newWidth, newHeight);
+    this.score.onResize(newWidth, newHeight);
+    this.enterNickname.onResize(newWidth, newHeight);
+    this.leaderboard.onResize(newWidth, newHeight);
+  }
+
+  update(deltaTime: number, keysDown: IKeysDown) {
+    this.backgrounds.forEach((background) => {
+      background.update(deltaTime);
+    });
+    this.obsticles.forEach((obsticle) => {
+      obsticle.update(deltaTime, keysDown);
+    });
+    this.player.update(deltaTime, keysDown);
+    this.score.update(deltaTime, keysDown);
+    this.enterNickname.update(deltaTime, keysDown);
+    this.leaderboard.update(deltaTime, keysDown);
+
+    this.updateLogic(deltaTime, keysDown);
+  }
+
   render() {
     const screenWidth = this.context.canvas.width;
     const screenHeight = this.context.canvas.height;
@@ -158,6 +167,7 @@ class Game {
     this.player.render();
     this.score.render();
     this.enterNickname.render();
+    this.leaderboard.render();
   }
 }
 

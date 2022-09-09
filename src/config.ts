@@ -51,4 +51,9 @@ export const OBSTICLE_SPEED = 300;
 export const OBSTICLE_MARIGIN_Y = 0.15;
 export const OBSTICLE_OFFSCREEN_THRESHOLD = 50;
 
+export const ELECTRON_SIZE = 30;
+export const ELECTRON_ANIM_FRAME_DURATION = 1 / 13;
+export const ELECTRON_ANIM_FRAME_COUNT = 7;
+export const ELECTRON_ANIM_FRAME_SIZE = 15;
+
 export const BACKGROUND_ASPECT_RATIO = 3.125;

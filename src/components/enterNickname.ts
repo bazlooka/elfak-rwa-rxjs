@@ -23,7 +23,7 @@ class EnterNickname extends Component {
           this.nickname = this.nickname.substring(0, this.nickname.length - 1);
         } else if (key === 'Enter' && this.nickname.length > 0) {
           this.gameState.player.nickname = this.nickname;
-          this.gameState.currentState = GameState.FETCHING_PLAYER;
+          this.gameState.currentState = GameState.READY;
           fetchPlayerProfile(this.gameState.player.nickname).then(
             (player: IPlayerProfile) => {
               this.gameState.player = player;
@@ -33,6 +33,7 @@ class EnterNickname extends Component {
       });
     }
   }
+
   render(): void {
     if (this.gameState.currentState === GameState.ENTER_NICKNAME) {
       drawCenteredText(

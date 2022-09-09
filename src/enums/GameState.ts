@@ -1,6 +1,5 @@
 export enum GameState {
   ENTER_NICKNAME,
-  FETCHING_PLAYER,
   READY,
   PLAYING,
   GAME_OVER,

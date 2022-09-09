@@ -24,13 +24,25 @@ const fetchPlayerProfile = async (
     }
     return response[0];
   } catch (e) {
-    console.error('Error fetching profile: ', e);
+    console.error('Error while fetching profile: ', e);
     return {
       id: 0,
       nickname: nickname,
       highscore: 0,
       electrons: 0,
     };
+  }
+};
+
+const fetchLeaderboard = async (): Promise<IPlayerProfile[]> => {
+  try {
+    const response = await fetchFromApi<IPlayerProfile[]>(
+      '/players?_sort=highscore&_order=desc&_limit=10',
+    );
+    return response;
+  } catch (e) {
+    console.error('Error while fetching leaderborad: ', e);
+    return [];
   }
 };
 
@@ -55,4 +67,4 @@ const putPlayerProfile = (player: IPlayerProfile): Promise<IPlayerProfile> => {
   });
 };
 
-export { fetchFromApi, fetchPlayerProfile, putPlayerProfile };
+export { fetchFromApi, fetchPlayerProfile, fetchLeaderboard, putPlayerProfile };
