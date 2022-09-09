@@ -1,3 +1,10 @@
 {
-  "players": [{ "id": 0, "nickname": "luka", "highscore": 45, "electrons": 3 }]
+  "players": [
+    {
+      "nickname": "luka",
+      "highscore": 4,
+      "electrons": 0,
+      "id": 2
+    }
+  ]
 }

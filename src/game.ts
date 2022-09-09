@@ -10,14 +10,17 @@ import {
   initializeMainLoop,
   isPlayerOffscreen,
   filterPassedObsticles,
+  fetchPlayerProfile,
+  putPlayerProfile,
 } from 'services';
 import { GameState } from 'enums';
+import { IPlayerProfile } from 'interfaces/IPlayerProfile';
 
 class Game {
   private container: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
 
-  private gameState: IGameState;
+  private readonly gameState: IGameState;
 
   private player: Player;
 
@@ -61,6 +64,10 @@ class Game {
       this.render(this.context);
     });
 
+    fetchPlayerProfile('luka').then((player: IPlayerProfile) => {
+      this.gameState.player = player;
+    });
+
     this.obsticles$ = startSpawningObsticles(this.context, this.gameState);
 
     loadBackroundImages().subscribe((backgroundProps) => {
@@ -84,6 +91,12 @@ class Game {
     this.obsticleSubscription.unsubscribe();
     this.player.die();
     this.gameState.currentState = GameState.GAME_OVER;
+    if (this.gameState.score > this.gameState.player.highscore) {
+      this.gameState.player.highscore = this.gameState.score;
+      putPlayerProfile(this.gameState.player).then((player) => {
+        this.gameState.player = player;
+      });
+    }
   }
 
   update(deltaTime: number, keysDown: any) {

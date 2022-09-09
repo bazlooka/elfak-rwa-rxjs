@@ -15,10 +15,12 @@ export const BACKGROUNDS = [
 export const INITIAL_GAME_STATE: IGameState = {
   currentState: GameState.INITIAL,
   score: 0,
-  highscore: 0,
-  nickname: '',
-  electrons: 0,
-  playerId: 0,
+  player: {
+    id: 0,
+    nickname: '',
+    highscore: 0,
+    electrons: 0,
+  },
 };
 
 export const API_URL = 'http://localhost:3000';

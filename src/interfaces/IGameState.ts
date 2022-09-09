@@ -1,10 +1,8 @@
 import { GameState } from 'enums';
+import { IPlayerProfile } from './IPlayerProfile';
 
 export interface IGameState {
   currentState: GameState;
   score: number;
-  highscore: number;
-  nickname: string;
-  electrons: number;
-  playerId: number;
+  player: IPlayerProfile;
 }

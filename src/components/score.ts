@@ -18,14 +18,14 @@ class Score extends Component {
   render(ctx: CanvasRenderingContext2D): void {
     switch (this.gameState.currentState) {
       case GameState.INITIAL:
-        this.renderHighScore(ctx);
+        this.renderHighscore(ctx);
         break;
       case GameState.PLAYING:
         this.renderCurrentScore(ctx);
         break;
       case GameState.GAME_OVER:
         this.renderGameOver(ctx);
-        this.renderHighScore(ctx);
+        this.renderHighscore(ctx);
         break;
     }
   }
@@ -41,8 +41,8 @@ class Score extends Component {
     );
   }
 
-  renderHighScore(ctx: CanvasRenderingContext2D): void {
-    const highscoreText = `Highscore: ${this.gameState.highscore}`;
+  renderHighscore(ctx: CanvasRenderingContext2D): void {
+    const highscoreText = `Highscore: ${this.gameState.player.highscore}`;
 
     drawCenteredText(
       ctx,
@@ -53,12 +53,18 @@ class Score extends Component {
     );
     drawCenteredText(
       ctx,
+      this.gameState.player.nickname,
+      MEDIUM_TEXT_FONT,
+      ctx.canvas.width / 2,
+      ctx.canvas.height - 100,
+    );
+    drawCenteredText(
+      ctx,
       highscoreText,
       MEDIUM_TEXT_FONT,
       ctx.canvas.width / 2,
       ctx.canvas.height - 50,
     );
-
     drawText(
       ctx,
       '[Spacebar]-Jump',

@@ -1,8 +1,8 @@
 import { IGameState, IKeysDown } from 'interfaces';
 
 abstract class Component {
-  protected context: CanvasRenderingContext2D;
-  protected gameState: IGameState;
+  protected readonly context: CanvasRenderingContext2D;
+  protected readonly gameState: IGameState;
 
   constructor(
     context: CanvasRenderingContext2D,
