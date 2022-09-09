@@ -2,7 +2,7 @@ import { fromEvent, debounceTime, Observable, Subscription } from 'rxjs';
 
 import { GAME_SPEED, INITIAL_GAME_STATE } from 'config';
 import { IGameState, IKeysDown } from 'interfaces';
-import { Obsticle, Player, Background, Score } from 'components';
+import { Obsticle, Player, Background, ScoreOverlay } from 'components';
 import {
   hasPlayerCollided,
   loadBackroundImages,
@@ -10,11 +10,10 @@ import {
   initializeMainLoop,
   isPlayerOffscreen,
   filterPassedObsticles,
-  fetchPlayerProfile,
   putPlayerProfile,
 } from 'services';
 import { GameState } from 'enums';
-import { IPlayerProfile } from 'interfaces/IPlayerProfile';
+import { EnterNickname } from 'components/enterNickname';
 
 class Game {
   private container: HTMLCanvasElement;
@@ -22,16 +21,17 @@ class Game {
 
   private readonly gameState: IGameState;
 
-  private player: Player;
+  private readonly player: Player;
+  private readonly score: ScoreOverlay;
+  private readonly enterNickname: EnterNickname;
+
+  private backgrounds: Background[];
 
   private frames$: Observable<[number, IKeysDown]>;
 
   private obsticles$: Observable<Obsticle>;
   private obsticles: Obsticle[];
   private obsticleSubscription: Subscription;
-
-  private backgrounds: Background[];
-  private score: Score;
 
   constructor(container: HTMLCanvasElement) {
     if (!container.getContext) {
@@ -45,7 +45,8 @@ class Game {
     this.context = context;
     this.gameState = INITIAL_GAME_STATE;
     this.player = new Player(context, this.gameState);
-    this.score = new Score(context, this.gameState);
+    this.score = new ScoreOverlay(context, this.gameState);
+    this.enterNickname = new EnterNickname(context, this.gameState);
     this.obsticles = [];
     this.backgrounds = [];
   }
@@ -61,14 +62,8 @@ class Game {
     this.frames$.subscribe(([deltaTime, keysDown]) => {
       const scaledDeltaTime = deltaTime * GAME_SPEED;
       this.update(scaledDeltaTime, keysDown);
-      this.render(this.context);
+      this.render();
     });
-
-    fetchPlayerProfile('luka').then((player: IPlayerProfile) => {
-      this.gameState.player = player;
-    });
-
-    this.obsticles$ = startSpawningObsticles(this.context, this.gameState);
 
     loadBackroundImages().subscribe((backgroundProps) => {
       this.backgrounds = backgroundProps.map((bgProp) => {
@@ -77,11 +72,11 @@ class Game {
     });
   }
 
-  start() {
+  startRound() {
     this.obsticleSubscription = this.obsticles$.subscribe((obsticle) => {
       this.obsticles.push(obsticle);
     });
-    this.player.start();
+    this.player.startRound();
     this.gameState.currentState = GameState.PLAYING;
     this.gameState.score = 0;
   }
@@ -99,64 +94,70 @@ class Game {
     }
   }
 
-  update(deltaTime: number, keysDown: any) {
-    this.backgrounds.forEach((background) => {
-      background.update(deltaTime);
-    });
-
-    this.player.update(deltaTime, keysDown);
-    this.score.update(deltaTime);
-
-    if (this.gameState.currentState === GameState.PLAYING) {
-      this.obsticles.forEach((obsticle) => {
-        obsticle.update(deltaTime);
-      });
-
-      this.obsticles = filterPassedObsticles(this.obsticles);
-
-      if (
-        hasPlayerCollided(this.player, this.obsticles) ||
-        isPlayerOffscreen(this.player, this.context.canvas.height)
-      ) {
-        this.die();
-      }
-    } else {
-      if (keysDown['Space']) {
-        this.start();
-      }
-    }
-  }
-
-  render(ctx: CanvasRenderingContext2D) {
-    const screenWidth = ctx.canvas.width;
-    const screenHeight = ctx.canvas.height;
-    ctx.clearRect(0, 0, screenWidth, screenHeight);
-
-    this.backgrounds.forEach((background) => {
-      background.render(ctx);
-    });
-    this.obsticles.forEach((obsticle) => {
-      obsticle.render(ctx);
-    });
-    this.player.render(ctx);
-
-    this.score.render(ctx);
-  }
-
   resize(newWidth: number, newHeight: number) {
     this.container.width = newWidth;
     this.container.height = newHeight;
     this.context.imageSmoothingEnabled = false;
 
-    this.player.onResize(newWidth, newHeight);
-
     this.backgrounds.forEach((background) => {
       background.onResize(newWidth, newHeight);
     });
-
     this.obsticles.forEach((obsticle) => {
       obsticle.onResize(newWidth, newHeight);
     });
+    this.player.onResize(newWidth, newHeight);
+    this.score.onResize(newWidth, newHeight);
+    this.enterNickname.onResize(newWidth, newHeight);
+  }
+
+  update(deltaTime: number, keysDown: IKeysDown) {
+    this.backgrounds.forEach((background) => {
+      background.update(deltaTime);
+    });
+    this.obsticles.forEach((obsticle) => {
+      obsticle.update(deltaTime);
+    });
+    this.player.update(deltaTime, keysDown);
+    this.score.update(deltaTime, keysDown);
+    this.enterNickname.update(deltaTime, keysDown);
+
+    switch (this.gameState.currentState) {
+      case GameState.FETCHING_PLAYER:
+        this.obsticles$ = startSpawningObsticles(this.context, this.gameState);
+        this.gameState.currentState = GameState.READY;
+        break;
+      case GameState.PLAYING:
+        this.obsticles = filterPassedObsticles(this.obsticles);
+        if (
+          hasPlayerCollided(this.player, this.obsticles) ||
+          isPlayerOffscreen(this.player, this.context.canvas.height)
+        ) {
+          this.die();
+        }
+        break;
+      case GameState.READY:
+      case GameState.GAME_OVER:
+        if (keysDown['Space']) {
+          this.startRound();
+        }
+        break;
+    }
+  }
+
+  render() {
+    const screenWidth = this.context.canvas.width;
+    const screenHeight = this.context.canvas.height;
+    this.context.clearRect(0, 0, screenWidth, screenHeight);
+
+    this.backgrounds.forEach((background) => {
+      background.render();
+    });
+    this.obsticles.forEach((obsticle) => {
+      obsticle.render();
+    });
+    this.player.render();
+    this.score.render();
+    this.enterNickname.render();
   }
 }
 

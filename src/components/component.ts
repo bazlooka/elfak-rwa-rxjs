@@ -11,14 +11,14 @@ abstract class Component {
   ) {
     this.context = context;
     this.gameState = gameState;
-    this.onCreate(context, args);
+    this.onCreate(args);
     this.onResize(context.canvas.width, context.canvas.height);
   }
 
-  abstract onCreate(context: CanvasRenderingContext2D, ...args: any[]): void;
+  abstract onCreate(...args: any[]): void;
   abstract onResize(newWidth: number, newHeight: number): void;
   abstract update(delta: number, keysDown: IKeysDown): void;
-  abstract render(ctx: CanvasRenderingContext2D): void;
+  abstract render(): void;
 }
 
 export { Component };

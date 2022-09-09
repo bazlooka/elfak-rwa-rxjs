@@ -1,1 +1,4 @@
-export type IKeysDown = any;
+export interface IKeysDown {
+  keys: string[];
+  [x: string]: any;
+}

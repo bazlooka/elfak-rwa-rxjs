@@ -13,7 +13,7 @@ export const BACKGROUNDS = [
 ];
 
 export const INITIAL_GAME_STATE: IGameState = {
-  currentState: GameState.INITIAL,
+  currentState: GameState.ENTER_NICKNAME,
   score: 0,
   player: {
     id: 0,
@@ -34,11 +34,15 @@ export const GAME_SPEED = 1;
 export const MAXIMUM_DELTA_TIME = 1 / 30;
 
 export const PLAYER_SIZE = 50;
+export const PLAYER_ANIM_FRAME_DURATION = 1 / 15;
+export const PLAYER_ANIM_FRAME_COUNT = 8;
+export const PLAYER_ANIM_FRAME_SIZE = 32;
 export const GRAVITY = 2000;
 export const JUMP_ACCELERATION = 700;
 
 export const OFFSCREEN_THRESHOLD = 50;
 
+export const OBSTICLE_ASPECT_RATIO = 14;
 export const OBSTICLE_SPAWN_INTERVAL_MS = 2000;
 export const OBSTICLE_STARTING_POS = 30;
 export const OBSTICLE_WIDTH = 60;

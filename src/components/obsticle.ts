@@ -1,18 +1,18 @@
 import {
+  OBSTICLE_ASPECT_RATIO,
   OBSTICLE_SPEED,
   OBSTICLE_STARTING_POS,
   OBSTICLE_WIDTH,
   OBSTICLE_WINDOW_HEIGHT,
 } from 'config';
 import { Component } from './component';
-import { IGameState, IRectangle } from 'interfaces';
+import { IRectangle } from 'interfaces';
 import { drawImage, fillRect } from 'services';
 import { fromEvent } from 'rxjs';
 
 import OBSTICLE_TOP_IMAGE from 'assets/images/obsticle-top.png';
 import OBSTICLE_BOTTOM_IMAGE from 'assets/images/obsticle-bottom.png';
-
-const OBSTICLE_ASPECT_RATIO = 14;
+import { GameState } from 'enums';
 
 class Obsticle extends Component {
   static topObsticleImg: HTMLImageElement;
@@ -25,14 +25,6 @@ class Obsticle extends Component {
   private _bottomObsticleBounds: IRectangle;
 
   private _passed: boolean;
-
-  constructor(
-    context: CanvasRenderingContext2D,
-    gameState: IGameState,
-    y: number,
-  ) {
-    super(context, gameState, y);
-  }
 
   get centerX() {
     return this._topObsticleBounds.x + OBSTICLE_WIDTH / 2;
@@ -50,11 +42,11 @@ class Obsticle extends Component {
     return this._bottomObsticleBounds;
   }
 
-  onCreate(context: CanvasRenderingContext2D, [y]: any[]): void {
+  onCreate([y]: any[]): void {
     this._centerYRelative = y;
     this._passed = false;
 
-    const centerX = context.canvas.width + OBSTICLE_STARTING_POS;
+    const centerX = this.context.canvas.width + OBSTICLE_STARTING_POS;
 
     if (!Obsticle.topObsticleImg) {
       const img = new Image();
@@ -100,25 +92,31 @@ class Obsticle extends Component {
   }
 
   update(delta: number): void {
-    const xTranslation = delta * OBSTICLE_SPEED;
-    this._topObsticleBounds.x -= xTranslation;
-    this._bottomObsticleBounds.x -= xTranslation;
+    if (this.gameState.currentState === GameState.PLAYING) {
+      const xTranslation = delta * OBSTICLE_SPEED;
+      this._topObsticleBounds.x -= xTranslation;
+      this._bottomObsticleBounds.x -= xTranslation;
 
-    if (!this._passed && this.centerX < this.context.canvas.width / 2) {
-      this._passed = true;
-      this.gameState.score++;
+      if (!this._passed && this.centerX < this.context.canvas.width / 2) {
+        this._passed = true;
+        this.gameState.score++;
+      }
     }
   }
 
-  render(ctx: CanvasRenderingContext2D): void {
+  render(): void {
     if (!Obsticle.topObsticleImg || !Obsticle.bottomObsticleImg) {
       return;
     }
 
-    drawImage(ctx, Obsticle.topObsticleImg, this._topObsticleBounds);
-    drawImage(ctx, Obsticle.bottomObsticleImg, this._bottomObsticleBounds);
+    drawImage(this.context, Obsticle.topObsticleImg, this._topObsticleBounds);
+    drawImage(
+      this.context,
+      Obsticle.bottomObsticleImg,
+      this._bottomObsticleBounds,
+    );
 
-    fillRect(ctx, {
+    fillRect(this.context, {
       x: this.centerX - 2,
       y: this.centerY - 2,
       width: 4,

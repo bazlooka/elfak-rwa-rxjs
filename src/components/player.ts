@@ -2,14 +2,18 @@ import { fromEvent } from 'rxjs';
 
 import { Component } from './component';
 import { IGameState, IKeysDown, IRectangle } from 'interfaces';
-import { GRAVITY, JUMP_ACCELERATION, PLAYER_SIZE } from 'config';
+import {
+  GRAVITY,
+  JUMP_ACCELERATION,
+  PLAYER_ANIM_FRAME_COUNT,
+  PLAYER_ANIM_FRAME_DURATION,
+  PLAYER_ANIM_FRAME_SIZE,
+  PLAYER_SIZE,
+} from 'config';
 import { drawImageRegion } from 'services';
-import PLAYER_IMG from 'assets/images/player.png';
 import { GameState } from 'enums';
 
-const FRAME_DURATION = 1 / 15;
-const FRAME_COUNT = 8;
-const FRAME_SIZE = 32;
+import PLAYER_ANIM_IMG from 'assets/images/player.png';
 
 class Player extends Component {
   private _bounds: IRectangle;
@@ -20,15 +24,11 @@ class Player extends Component {
 
   private currentTime: number;
 
-  constructor(context: CanvasRenderingContext2D, gameState: IGameState) {
-    super(context, gameState);
-  }
-
   get bounds() {
     return this._bounds;
   }
 
-  start() {
+  startRound() {
     this.accelerationY = 0;
     this.jump();
   }
@@ -41,10 +41,10 @@ class Player extends Component {
     this.bounds.y = this._startY;
   }
 
-  onCreate(context: CanvasRenderingContext2D): void {
+  onCreate(): void {
     this._bounds = {
-      x: (context.canvas.width - PLAYER_SIZE) / 2,
-      y: (context.canvas.height - PLAYER_SIZE) / 2,
+      x: (this.context.canvas.width - PLAYER_SIZE) / 2,
+      y: (this.context.canvas.height - PLAYER_SIZE) / 2,
       width: PLAYER_SIZE,
       height: PLAYER_SIZE,
     };
@@ -54,7 +54,7 @@ class Player extends Component {
     fromEvent(img, 'load').subscribe(() => {
       this.img = img;
     });
-    img.src = PLAYER_IMG;
+    img.src = PLAYER_ANIM_IMG;
   }
 
   onResize(newWidth: number, newHeight: number): void {
@@ -77,19 +77,21 @@ class Player extends Component {
     }
   }
 
-  render(ctx: CanvasRenderingContext2D): void {
-    if (!this.img) {
+  render(): void {
+    if (!this.img || this.gameState.currentState === GameState.ENTER_NICKNAME) {
       return;
     }
+
     const currFrame =
-      Math.floor(this.currentTime / FRAME_DURATION) % FRAME_COUNT;
+      Math.floor(this.currentTime / PLAYER_ANIM_FRAME_DURATION) %
+      PLAYER_ANIM_FRAME_COUNT;
     const sourceRect: IRectangle = {
-      x: currFrame * FRAME_SIZE,
+      x: currFrame * PLAYER_ANIM_FRAME_SIZE,
       y: 0,
-      width: FRAME_SIZE,
-      height: FRAME_SIZE,
+      width: PLAYER_ANIM_FRAME_SIZE,
+      height: PLAYER_ANIM_FRAME_SIZE,
     };
-    drawImageRegion(ctx, this.img, this._bounds, sourceRect);
+    drawImageRegion(this.context, this.img, this._bounds, sourceRect);
   }
 }
 

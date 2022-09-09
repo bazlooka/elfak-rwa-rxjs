@@ -20,7 +20,7 @@ class Background extends Component {
     this.image = backgroundProps.image;
   }
 
-  onCreate(context: CanvasRenderingContext2D): void {}
+  onCreate(): void {}
 
   onResize(screenWidth: number, screenHeight: number) {
     const backgroundWidth = screenHeight * BACKGROUND_ASPECT_RATIO;
@@ -46,16 +46,16 @@ class Background extends Component {
     const xTranslation = this.speed * delta;
     this.bounds.forEach((bounds) => {
       if (bounds.x <= -bounds.width) {
-        bounds.x = bounds.width - 1;
+        bounds.x = bounds.width - 5;
       }
       bounds.x -= xTranslation;
     });
   }
 
-  render(ctx: CanvasRenderingContext2D): void {
+  render(): void {
     this.bounds.forEach((bounds) => {
-      if (bounds.x <= ctx.canvas.width) {
-        drawImage(ctx, this.image, bounds);
+      if (bounds.x <= this.context.canvas.width) {
+        drawImage(this.context, this.image, bounds);
       }
     });
   }

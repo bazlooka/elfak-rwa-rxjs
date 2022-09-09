@@ -1,96 +1,100 @@
 import { LARGE_TEXT_FONT, MEDIUM_TEXT_FONT, SMALL_TEXT_FONT } from 'config';
 import { GameState } from 'enums';
-import { IGameState } from 'interfaces';
+import { IGameState, IKeysDown } from 'interfaces';
 import { drawCenteredText, drawText } from 'services';
 import { Component } from './component';
 
-class Score extends Component {
+class ScoreOverlay extends Component {
   constructor(context: CanvasRenderingContext2D, gameState: IGameState) {
     super(context, gameState);
   }
 
-  onCreate(context: CanvasRenderingContext2D): void {}
+  onCreate(): void {}
 
   onResize(newWidth: number, newHeight: number): void {}
 
-  update(delta: number): void {}
+  update(delta: number, keysDown: IKeysDown): void {}
 
-  render(ctx: CanvasRenderingContext2D): void {
+  render(): void {
     switch (this.gameState.currentState) {
-      case GameState.INITIAL:
-        this.renderHighscore(ctx);
+      case GameState.READY:
+        this.renderJumpToStart();
+        this.renderHighscore();
         break;
       case GameState.PLAYING:
-        this.renderCurrentScore(ctx);
+        this.renderCurrentScore();
         break;
       case GameState.GAME_OVER:
-        this.renderGameOver(ctx);
-        this.renderHighscore(ctx);
+        this.renderGameOver();
+        this.renderHighscore();
         break;
     }
   }
 
-  renderCurrentScore(ctx: CanvasRenderingContext2D): void {
+  renderCurrentScore(): void {
     const scoreText = this.gameState.score.toString();
     drawCenteredText(
-      ctx,
+      this.context,
       scoreText,
       LARGE_TEXT_FONT,
-      ctx.canvas.width / 2,
+      this.context.canvas.width / 2,
       100,
     );
   }
 
-  renderHighscore(ctx: CanvasRenderingContext2D): void {
-    const highscoreText = `Highscore: ${this.gameState.player.highscore}`;
-
+  renderJumpToStart(): void {
     drawCenteredText(
-      ctx,
+      this.context,
       'Jump to start',
       MEDIUM_TEXT_FONT,
-      ctx.canvas.width / 2,
-      ctx.canvas.height * 0.3,
-    );
-    drawCenteredText(
-      ctx,
-      this.gameState.player.nickname,
-      MEDIUM_TEXT_FONT,
-      ctx.canvas.width / 2,
-      ctx.canvas.height - 100,
-    );
-    drawCenteredText(
-      ctx,
-      highscoreText,
-      MEDIUM_TEXT_FONT,
-      ctx.canvas.width / 2,
-      ctx.canvas.height - 50,
-    );
-    drawText(
-      ctx,
-      '[Spacebar]-Jump',
-      SMALL_TEXT_FONT,
-      20,
-      ctx.canvas.height - 20,
+      this.context.canvas.width / 2,
+      this.context.canvas.height / 4,
     );
   }
 
-  renderGameOver(ctx: CanvasRenderingContext2D) {
+  renderHighscore(): void {
+    const highscoreText = `Highscore: ${this.gameState.player.highscore}`;
+
     drawCenteredText(
-      ctx,
+      this.context,
+      this.gameState.player.nickname,
+      MEDIUM_TEXT_FONT,
+      this.context.canvas.width / 2,
+      this.context.canvas.height - 100,
+    );
+    drawCenteredText(
+      this.context,
+      highscoreText,
+      MEDIUM_TEXT_FONT,
+      this.context.canvas.width / 2,
+      this.context.canvas.height - 50,
+    );
+    drawText(
+      this.context,
+      '[Spacebar]-Jump',
+      SMALL_TEXT_FONT,
+      20,
+      this.context.canvas.height - 20,
+    );
+  }
+
+  renderGameOver() {
+    drawCenteredText(
+      this.context,
       'GAME OVER',
       LARGE_TEXT_FONT,
-      ctx.canvas.width / 2,
+      this.context.canvas.width / 2,
       100,
     );
     const scoreText = `Score: ${this.gameState.score}`;
     drawCenteredText(
-      ctx,
+      this.context,
       scoreText,
       MEDIUM_TEXT_FONT,
-      ctx.canvas.width / 2,
+      this.context.canvas.width / 2,
       150,
     );
   }
 }
 
-export { Score };
+export { ScoreOverlay };

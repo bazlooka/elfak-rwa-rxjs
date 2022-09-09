@@ -15,8 +15,6 @@ const fetchFromApi = async <T>(
 const fetchPlayerProfile = async (
   nickname: string,
 ): Promise<IPlayerProfile> => {
-  console.log('FETCHING', nickname);
-
   try {
     const response = await fetchFromApi<IPlayerProfile[]>(
       '/players?nickname=' + nickname,
@@ -24,11 +22,9 @@ const fetchPlayerProfile = async (
     if (response.length === 0) {
       throw new Error(`Player [${nickname}] not found!`);
     }
-    console.log('FETCH', response[0]);
-
     return response[0];
   } catch (e) {
-    console.error('Error fetching profile: ' + e);
+    console.error('Error fetching profile: ', e);
     return {
       id: 0,
       nickname: nickname,
@@ -49,8 +45,6 @@ const putPlayerProfile = (player: IPlayerProfile): Promise<IPlayerProfile> => {
     method = 'POST';
     route = `/players`;
   }
-
-  console.log(method, route, player);
 
   return fetchFromApi<IPlayerProfile>(route, {
     method,

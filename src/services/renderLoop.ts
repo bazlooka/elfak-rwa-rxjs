@@ -50,17 +50,21 @@ const createMainLoop = () => {
 const getBufferedKeysDown = (frames$: Observable<number>) => {
   const keysDown$ = fromEvent(document, 'keydown').pipe(
     map((event: KeyboardEvent) => {
-      return event.code;
+      return { code: event.code, key: event.key };
     }),
-    filter((key) => key != null),
   );
 
   const bufferedKeysDown$ = keysDown$.pipe(
     buffer(frames$),
-    map((keysDown: string[]) => {
-      return keysDown.reduce((acc: IKeysDown, currKey: string) => {
-        return { ...acc, [currKey]: true };
-      }, {});
+    map((keysDown) => {
+      return keysDown.reduce(
+        (acc: IKeysDown, currKey) => {
+          acc.keys.push(currKey.key);
+          acc[currKey.code] = true;
+          return acc;
+        },
+        { keys: [] },
+      );
     }),
   );
 
