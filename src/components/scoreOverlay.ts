@@ -1,8 +1,7 @@
 import { LARGE_TEXT_FONT, MEDIUM_TEXT_FONT, SMALL_TEXT_FONT } from 'config';
 import { GameState } from 'enums';
-import Game from 'game';
 import { IKeysDown } from 'interfaces';
-import { drawCenteredText, drawText, fillRect } from 'services';
+import { drawCenteredText, drawText } from 'services';
 import { Component } from './component';
 
 class ScoreOverlay extends Component {

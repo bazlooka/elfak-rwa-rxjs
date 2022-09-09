@@ -1,8 +1,8 @@
-import { Player } from 'components';
-import { ElectricField } from 'components/electricField';
-import { ELECTRIC_FIELD_SPAWN_INTERVAL_MS } from 'config';
-import { IGameState } from 'interfaces';
 import { filter, interval, map, Observable } from 'rxjs';
+
+import { ELECTRIC_FIELD_SPAWN_INTERVAL_MS } from 'config';
+import { Player, ElectricField } from 'components';
+import { IGameState } from 'interfaces';
 
 const startSpawningElectricFields = (
   context: CanvasRenderingContext2D,

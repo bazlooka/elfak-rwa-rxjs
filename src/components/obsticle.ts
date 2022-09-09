@@ -1,3 +1,5 @@
+import { fromEvent } from 'rxjs';
+
 import {
   ELECTRON_SIZE,
   OBSTICLE_ASPECT_RATIO,
@@ -7,17 +9,19 @@ import {
   OBSTICLE_WIDTH,
   OBSTICLE_WINDOW_HEIGHT,
 } from 'config';
-import { Component } from './component';
-import { IKeysDown, IRectangle } from 'interfaces';
+import { GameState } from 'enums';
+import {
+  IKeysDown,
+  IRectangle,
+  IObsticleProps,
+  IElectronProps,
+} from 'interfaces';
 import { drawImage } from 'services';
-import { fromEvent } from 'rxjs';
+import { Component } from './component';
+import { Electron } from './electron';
 
 import OBSTICLE_TOP_IMAGE from 'assets/images/obsticle-top.png';
 import OBSTICLE_BOTTOM_IMAGE from 'assets/images/obsticle-bottom.png';
-import { GameState } from 'enums';
-import { IObsticleProps } from 'interfaces/IObsticleProps';
-import { Electron } from './electron';
-import { IElectronProps } from 'interfaces/IElectronProps';
 
 class Obsticle extends Component<IObsticleProps> {
   static topObsticleImg: HTMLImageElement;

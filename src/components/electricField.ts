@@ -1,16 +1,16 @@
-import { IKeysDown, IRectangle } from 'interfaces';
-import { IObsticleProps } from 'interfaces/IObsticleProps';
-import { drawImage } from 'services';
-import { Component } from './component';
-
-import ELECTRIC_FIELD_IMG from 'assets/images/electric-field.png';
 import { fromEvent } from 'rxjs';
+
 import {
   ELECTRIC_FIELD_ASPECT_RATIO,
   OBSTICLE_SPEED,
   OBSTICLE_STARTING_POS,
 } from 'config';
 import { GameState } from 'enums';
+import { IKeysDown, IRectangle, IObsticleProps } from 'interfaces';
+import { drawImage } from 'services';
+import { Component } from './component';
+
+import ELECTRIC_FIELD_IMG from 'assets/images/electric-field.png';
 
 class ElectricField extends Component<IObsticleProps> {
   private static img: HTMLImageElement;

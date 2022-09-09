@@ -1,7 +1,5 @@
 import { fromEvent } from 'rxjs';
 
-import { Component } from './component';
-import { IGameState, IKeysDown, IRectangle } from 'interfaces';
 import {
   GRAVITY,
   JUMP_ACCELERATION,
@@ -10,11 +8,12 @@ import {
   PLAYER_ANIM_FRAME_SIZE,
   PLAYER_SIZE,
 } from 'config';
+import { IKeysDown, IRectangle, IAnimatedSpriteProps } from 'interfaces';
 import { GameState } from 'enums';
+import { AnimatedSprite } from './animatedSprite';
+import { Component } from './component';
 
 import PLAYER_ANIM_IMG from 'assets/images/player.png';
-import { AnimatedSprite } from './animatedSprite';
-import { IAnimatedSpriteProps } from 'interfaces/IAnimatedSpriteProps';
 
 class Player extends Component {
   private _bounds: IRectangle;
@@ -80,7 +79,6 @@ class Player extends Component {
     if (this.gameState.currentState === GameState.PLAYING) {
       this.accelerationY += GRAVITY * delta * this.gameState.gravityCoefficient;
       this.bounds.y += this.accelerationY * delta;
-
       if (keysDown['Space']) {
         this.jump();
       }

@@ -1,5 +1,5 @@
 import { API_URL } from 'config';
-import { IPlayerProfile } from 'interfaces/IPlayerProfile';
+import { IPlayerProfile } from 'interfaces';
 
 const fetchFromApi = async <T>(
   path: string,

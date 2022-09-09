@@ -1,8 +1,7 @@
 import { MEDIUM_TEXT_FONT } from 'config';
 import { GameState } from 'enums';
-import { IKeysDown } from 'interfaces';
-import { IPlayerProfile } from 'interfaces/IPlayerProfile';
-import { drawCenteredText, drawText, fetchLeaderboard } from 'services';
+import { IKeysDown, IPlayerProfile } from 'interfaces';
+import { drawText, fetchLeaderboard } from 'services';
 import { Component } from './component';
 
 class Leaderboard extends Component {

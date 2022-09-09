@@ -1,5 +1,4 @@
-import { IGameState, IKeysDown, IRectangle } from 'interfaces';
-import { IAnimatedSpriteProps } from 'interfaces/IAnimatedSpriteProps';
+import { IAnimatedSpriteProps, IKeysDown, IRectangle } from 'interfaces';
 import { drawImageRegion } from 'services';
 import { Component } from './component';
 

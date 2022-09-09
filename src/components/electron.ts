@@ -1,28 +1,26 @@
+import { fromEvent } from 'rxjs';
+
 import {
   ELECTRON_ANIM_FRAME_COUNT,
   ELECTRON_ANIM_FRAME_DURATION,
   ELECTRON_ANIM_FRAME_SIZE,
 } from 'config';
-import { IKeysDown } from 'interfaces';
-import { IAnimatedSpriteProps } from 'interfaces/IAnimatedSpriteProps';
-import { fromEvent } from 'rxjs';
+import { ElectronState } from 'enums';
+import { IKeysDown, IAnimatedSpriteProps, IElectronProps } from 'interfaces';
+import { putPlayerProfile } from 'services';
 import { AnimatedSprite } from './animatedSprite';
 import { Component } from './component';
 
 import ELECTRON_ANIM_IMG from 'assets/images/electron.png';
-import { ElectronState } from 'enums/ElectronState';
-import { IElectronProps } from 'interfaces/IElectronProps';
-import { putPlayerProfile } from 'services';
 
 class Electron extends Component<IElectronProps> {
+  private static img: HTMLImageElement;
+
+  private state: ElectronState;
   private sprite: AnimatedSprite;
 
   private currTime: number;
   private caughtTime: number;
-
-  private static img: HTMLImageElement;
-
-  private state: ElectronState;
 
   onCreate(): void {
     this.currTime = 0;
@@ -52,7 +50,6 @@ class Electron extends Component<IElectronProps> {
       frameDuration: ELECTRON_ANIM_FRAME_DURATION,
       frameSize: ELECTRON_ANIM_FRAME_SIZE,
     };
-
     this.sprite = new AnimatedSprite(this.context, this.gameState, spriteProps);
     this.sprite.bounds = this.props.bounds;
   }
@@ -89,11 +86,11 @@ class Electron extends Component<IElectronProps> {
         delta *
         10;
     }
-
     if (this.sprite) {
       this.sprite.update(delta, keysDown);
     }
   }
+
   render(): void {
     if (this.sprite && this.state !== ElectronState.DESTROYED) {
       this.sprite.render();

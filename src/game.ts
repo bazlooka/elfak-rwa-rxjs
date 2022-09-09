@@ -2,7 +2,15 @@ import { fromEvent, debounceTime, Observable, Subscription } from 'rxjs';
 
 import { GAME_SPEED, INITIAL_GAME_STATE } from 'config';
 import { IGameState, IKeysDown } from 'interfaces';
-import { Obsticle, Player, Background, ScoreOverlay } from 'components';
+import {
+  Obsticle,
+  Player,
+  Background,
+  ScoreOverlay,
+  EnterNickname,
+  Leaderboard,
+  ElectricField,
+} from 'components';
 import {
   hasPlayerCollided,
   loadBackroundImages,
@@ -12,15 +20,10 @@ import {
   filterPassedObsticles,
   putPlayerProfile,
   isPlayerInElecticField,
-} from 'services';
-import { GameState } from 'enums';
-import { EnterNickname } from 'components/enterNickname';
-import { Leaderboard } from 'components/leaderboard';
-import { ElectricField } from 'components/electricField';
-import {
   filterPassedElectircFields,
   startSpawningElectricFields,
-} from 'services/electricFieldSpawner';
+} from 'services';
+import { GameState } from 'enums';
 
 class Game {
   private readonly container: HTMLCanvasElement;

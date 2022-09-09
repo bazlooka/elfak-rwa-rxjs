@@ -1,5 +1,4 @@
-import { Obsticle, Player } from 'components';
-import { ElectricField } from 'components/electricField';
+import { Obsticle, Player, ElectricField } from 'components';
 import { OFFSCREEN_THRESHOLD } from 'config';
 
 import { areRectanglesColliding } from './rectCollisionDetection';

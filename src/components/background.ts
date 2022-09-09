@@ -1,7 +1,7 @@
 import { BACKGROUND_ASPECT_RATIO } from 'config';
-import { Component } from './component';
 import { IBackgroundProps, IGameState, IRectangle } from 'interfaces';
 import { drawImage } from 'services';
+import { Component } from './component';
 
 class Background extends Component {
   private image: HTMLImageElement;

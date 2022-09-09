@@ -1,7 +1,6 @@
 import { MEDIUM_TEXT_FONT } from 'config';
 import { GameState } from 'enums';
-import { IKeysDown } from 'interfaces';
-import { IPlayerProfile } from 'interfaces/IPlayerProfile';
+import { IKeysDown, IPlayerProfile } from 'interfaces';
 import { drawCenteredText, fetchPlayerProfile } from 'services';
 import { Component } from './component';
 

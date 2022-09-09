@@ -1,4 +1,5 @@
 export * from './apiUtils';
+export * from './electricFieldSpawner';
 export * from './imageLoader';
 export * from './obsticleSpawner';
 export * from './playerCollisionDetection';
