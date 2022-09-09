@@ -4,6 +4,9 @@ import {
   ELECTRON_ANIM_FRAME_COUNT,
   ELECTRON_ANIM_FRAME_DURATION,
   ELECTRON_ANIM_FRAME_SIZE,
+  ELECTRON_FOLLOW_SPEED,
+  ELECTRON_ROTATION_DIAMETER,
+  ELECTRON_ROTATION_SPEED,
 } from 'config';
 import { ElectronState } from 'enums';
 import { IKeysDown, IAnimatedSpriteProps, IElectronProps } from 'interfaces';
@@ -16,16 +19,16 @@ import ELECTRON_ANIM_IMG from 'assets/images/electron.png';
 class Electron extends Component<IElectronProps> {
   private static img: HTMLImageElement;
 
-  private state: ElectronState;
-  private sprite: AnimatedSprite;
+  private _state: ElectronState;
+  private _sprite: AnimatedSprite;
 
-  private currTime: number;
-  private caughtTime: number;
+  private _currTime: number;
+  private _totalTimeFollowing: number;
 
   onCreate(): void {
-    this.currTime = 0;
-    this.caughtTime = 0;
-    this.state = ElectronState.FREE;
+    this._currTime = 0;
+    this._totalTimeFollowing = 0;
+    this._state = ElectronState.FREE;
 
     if (!Electron.img) {
       this.loadImage();
@@ -50,50 +53,79 @@ class Electron extends Component<IElectronProps> {
       frameDuration: ELECTRON_ANIM_FRAME_DURATION,
       frameSize: ELECTRON_ANIM_FRAME_SIZE,
     };
-    this.sprite = new AnimatedSprite(this.context, this.gameState, spriteProps);
-    this.sprite.bounds = this.props.bounds;
+
+    this._sprite = new AnimatedSprite(
+      this.context,
+      this.gameState,
+      spriteProps,
+    );
+    this._sprite.bounds = this.props.bounds;
   }
 
   onResize(newWidth: number, newHeight: number): void {}
 
   update(delta: number, keysDown: IKeysDown, xTranslation?: number): void {
-    this.currTime += delta;
-    if (this.state === ElectronState.FREE && xTranslation) {
-      this.props.bounds.x -= xTranslation;
-      if (this.props.bounds.x - this.props.player.bounds.x < 30) {
-        this.state = ElectronState.CAUGHT;
-      }
-    } else if (this.state === ElectronState.CAUGHT) {
-      this.caughtTime += delta;
+    this._currTime += delta;
 
-      if (this.caughtTime > 2) {
-        this.state = ElectronState.DESTROYED;
-        this.gameState.player.electrons++;
-        putPlayerProfile(this.gameState.player).then((player) => {
-          this.gameState.player = player;
-        });
-        return;
-      }
-      const pX = this.props.player.bounds.x;
-      const pY = this.props.player.bounds.y;
-
-      this.props.bounds.x +=
-        (pX + Math.cos(this.currTime * 8) * 20 - this.props.bounds.x) *
-        delta *
-        10;
-      this.props.bounds.y +=
-        (pY + Math.sin(this.currTime * 8) * 20 - this.props.bounds.y) *
-        delta *
-        10;
+    if (!xTranslation) {
+      return;
     }
-    if (this.sprite) {
-      this.sprite.update(delta, keysDown);
+
+    switch (this._state) {
+      case ElectronState.FREE:
+        this.moveWithObsticles(xTranslation);
+        break;
+      case ElectronState.CAUGHT:
+        this.followPlayer(delta);
+        break;
+    }
+
+    if (this._sprite) {
+      this._sprite.update(delta, keysDown);
+    }
+  }
+
+  moveWithObsticles(xTranslation: number) {
+    this.props.bounds.x -= xTranslation;
+    if (this.props.bounds.x - this.props.player.bounds.x < 30) {
+      this._state = ElectronState.CAUGHT;
+    }
+  }
+
+  followPlayer(delta: number) {
+    this._totalTimeFollowing += delta;
+
+    const pX = this.props.player.bounds.x;
+    const pY = this.props.player.bounds.y;
+
+    this.props.bounds.x +=
+      (pX +
+        Math.cos(this._currTime * ELECTRON_ROTATION_SPEED) *
+          ELECTRON_ROTATION_DIAMETER -
+        this.props.bounds.x) *
+      delta *
+      ELECTRON_FOLLOW_SPEED;
+
+    this.props.bounds.y +=
+      (pY +
+        Math.sin(this._currTime * ELECTRON_ROTATION_SPEED) *
+          ELECTRON_ROTATION_DIAMETER -
+        this.props.bounds.y) *
+      delta *
+      ELECTRON_FOLLOW_SPEED;
+
+    if (this._totalTimeFollowing > 2) {
+      this._state = ElectronState.DESTROYED;
+      this.gameState.player.electrons++;
+      putPlayerProfile(this.gameState.player).then((player) => {
+        this.gameState.player = player;
+      });
     }
   }
 
   render(): void {
-    if (this.sprite && this.state !== ElectronState.DESTROYED) {
-      this.sprite.render();
+    if (this._sprite && this._state !== ElectronState.DESTROYED) {
+      this._sprite.render();
     }
   }
 }

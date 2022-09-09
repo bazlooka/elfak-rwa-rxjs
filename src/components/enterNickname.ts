@@ -5,10 +5,10 @@ import { drawCenteredText, fetchPlayerProfile } from 'services';
 import { Component } from './component';
 
 class EnterNickname extends Component {
-  private nickname: string;
+  private _nickname: string;
 
   onCreate(): void {
-    this.nickname = '';
+    this._nickname = '';
   }
 
   onResize(newWidth: number, newHeight: number): void {}
@@ -17,19 +17,35 @@ class EnterNickname extends Component {
     if (this.gameState.currentState === GameState.ENTER_NICKNAME) {
       keysDown.keys.forEach((key) => {
         if (key.length === 1) {
-          this.nickname += key;
-        } else if (key === 'Backspace' && this.nickname.length > 0) {
-          this.nickname = this.nickname.substring(0, this.nickname.length - 1);
-        } else if (key === 'Enter' && this.nickname.length > 0) {
-          this.gameState.player.nickname = this.nickname;
-          this.gameState.currentState = GameState.READY;
-          fetchPlayerProfile(this.gameState.player.nickname).then(
-            (player: IPlayerProfile) => {
-              this.gameState.player = player;
-            },
-          );
+          this.addCharToNickname(key);
+        } else if (key === 'Backspace') {
+          this.removeCharFromNickname();
+        } else if (key === 'Enter') {
+          this.submitNickname();
         }
       });
+    }
+  }
+
+  addCharToNickname(char: string) {
+    this._nickname += char;
+  }
+
+  removeCharFromNickname() {
+    if (this._nickname.length > 0) {
+      this._nickname = this._nickname.substring(0, this._nickname.length - 1);
+    }
+  }
+
+  submitNickname() {
+    if (this._nickname.length > 0) {
+      this.gameState.player.nickname = this._nickname;
+      this.gameState.currentState = GameState.READY;
+      fetchPlayerProfile(this.gameState.player.nickname).then(
+        (player: IPlayerProfile) => {
+          this.gameState.player = player;
+        },
+      );
     }
   }
 
@@ -44,7 +60,7 @@ class EnterNickname extends Component {
       );
       drawCenteredText(
         this.context,
-        this.nickname,
+        this._nickname,
         MEDIUM_TEXT_FONT,
         this.context.canvas.width / 2,
         this.context.canvas.height / 2,

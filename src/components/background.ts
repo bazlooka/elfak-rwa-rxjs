@@ -4,10 +4,10 @@ import { drawImage } from 'services';
 import { Component } from './component';
 
 class Background extends Component {
-  private image: HTMLImageElement;
-  private speed: number;
+  private _image: HTMLImageElement;
+  private _speed: number;
 
-  private bounds: IRectangle[];
+  private _bounds: IRectangle[];
 
   constructor(
     context: CanvasRenderingContext2D,
@@ -16,8 +16,8 @@ class Background extends Component {
   ) {
     super(context, gameState);
 
-    this.speed = backgroundProps.speed;
-    this.image = backgroundProps.image;
+    this._speed = backgroundProps.speed;
+    this._image = backgroundProps.image;
   }
 
   onCreate(): void {}
@@ -26,7 +26,7 @@ class Background extends Component {
     const backgroundWidth = screenHeight * BACKGROUND_ASPECT_RATIO;
     const backgroundHeight = screenHeight;
 
-    this.bounds = [
+    this._bounds = [
       {
         x: 0,
         y: 0,
@@ -43,19 +43,24 @@ class Background extends Component {
   }
 
   update(delta: number): void {
-    const xTranslation = this.speed * delta;
-    this.bounds.forEach((bounds) => {
+    const xTranslation = this._speed * delta;
+    this._bounds.forEach((bounds) => {
       if (bounds.x <= -bounds.width) {
-        bounds.x = bounds.width - 5;
+        this.returnToStartingPosition(bounds);
       }
       bounds.x -= xTranslation;
     });
   }
 
+  returnToStartingPosition(bounds: IRectangle) {
+    const overlapAmount = 10;
+    bounds.x = bounds.width - overlapAmount;
+  }
+
   render(): void {
-    this.bounds.forEach((bounds) => {
+    this._bounds.forEach((bounds) => {
       if (bounds.x <= this.context.canvas.width) {
-        drawImage(this.context, this.image, bounds);
+        drawImage(this.context, this._image, bounds);
       }
     });
   }

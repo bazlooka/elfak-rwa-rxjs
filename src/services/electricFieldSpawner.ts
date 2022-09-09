@@ -1,6 +1,6 @@
 import { filter, interval, map, Observable } from 'rxjs';
 
-import { ELECTRIC_FIELD_SPAWN_INTERVAL_MS } from 'config';
+import { EF_SPAWN_INTERVAL_MS, EF_SPAWN_ODDS } from 'config';
 import { Player, ElectricField } from 'components';
 import { IGameState } from 'interfaces';
 
@@ -9,9 +9,9 @@ const startSpawningElectricFields = (
   gameState: IGameState,
   player: Player,
 ): Observable<ElectricField> => {
-  return interval(ELECTRIC_FIELD_SPAWN_INTERVAL_MS).pipe(
+  return interval(EF_SPAWN_INTERVAL_MS).pipe(
     filter(() => {
-      return Math.floor(Math.random() * 8) === 1;
+      return Math.floor(Math.random() * EF_SPAWN_ODDS) === 1;
     }),
     map(() => {
       return new ElectricField(context, gameState, { player });

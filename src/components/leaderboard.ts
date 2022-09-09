@@ -5,12 +5,11 @@ import { drawText, fetchLeaderboard } from 'services';
 import { Component } from './component';
 
 class Leaderboard extends Component {
-  private shown: boolean;
-
-  private leaderboard: IPlayerProfile[];
+  private _shown: boolean;
+  private _leaderboard: IPlayerProfile[];
 
   onCreate(): void {
-    this.shown = false;
+    this._shown = false;
   }
 
   onResize(newWidth: number, newHeight: number): void {}
@@ -18,17 +17,18 @@ class Leaderboard extends Component {
   update(delta: number, keysDown: IKeysDown): void {
     if (this.gameState.currentState !== GameState.ENTER_NICKNAME) {
       if (keysDown['KeyL']) {
-        this.shown = !this.shown;
-        if (this.shown) {
+        this._shown = !this._shown;
+        if (this._shown) {
           fetchLeaderboard().then((leaderboard) => {
-            this.leaderboard = leaderboard;
+            this._leaderboard = leaderboard;
           });
         }
       }
     }
   }
+
   render(): void {
-    if (this.shown && this.leaderboard) {
+    if (this._shown && this._leaderboard) {
       drawText(
         this.context,
         'Leaderboard:',
@@ -37,7 +37,7 @@ class Leaderboard extends Component {
         100,
       );
 
-      this.leaderboard.forEach((player, index) => {
+      this._leaderboard.forEach((player, index) => {
         drawText(
           this.context,
           `${index + 1}. ${player.nickname.padEnd(8)}- ${player.highscore

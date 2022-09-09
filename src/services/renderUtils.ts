@@ -1,3 +1,4 @@
+import { FONT_COLOR, FONT_SHADOW_COLOR, FONT_SHADOW_SIZE } from 'config';
 import { IRectangle } from 'interfaces';
 
 const fillRect = (ctx: CanvasRenderingContext2D, rect: IRectangle) => {
@@ -33,10 +34,10 @@ const drawImageRegion = (
 
 const applyFont = (ctx: CanvasRenderingContext2D, font: string) => {
   ctx.font = font;
-  ctx.fillStyle = 'white';
-  ctx.shadowColor = 'gray';
-  ctx.shadowOffsetX = 3;
-  ctx.shadowOffsetY = 3;
+  ctx.fillStyle = FONT_COLOR;
+  ctx.shadowColor = FONT_SHADOW_COLOR;
+  ctx.shadowOffsetX = FONT_SHADOW_SIZE;
+  ctx.shadowOffsetY = FONT_SHADOW_SIZE;
 };
 
 const clearFont = (ctx: CanvasRenderingContext2D) => {

@@ -2,6 +2,7 @@ import { fromEvent } from 'rxjs';
 
 import {
   ELECTRON_SIZE,
+  ELECTRON_SPAWN_ODDS,
   OBSTICLE_ASPECT_RATIO,
   OBSTICLE_MARIGIN_Y,
   OBSTICLE_SPEED,
@@ -24,8 +25,8 @@ import OBSTICLE_TOP_IMAGE from 'assets/images/obsticle-top.png';
 import OBSTICLE_BOTTOM_IMAGE from 'assets/images/obsticle-bottom.png';
 
 class Obsticle extends Component<IObsticleProps> {
-  static topObsticleImg: HTMLImageElement;
-  static bottomObsticleImg: HTMLImageElement;
+  private static topObsticleImg: HTMLImageElement;
+  private static bottomObsticleImg: HTMLImageElement;
 
   private _centerYRelative: number;
   private _centerY: number;
@@ -36,6 +37,24 @@ class Obsticle extends Component<IObsticleProps> {
   private _passed: boolean;
 
   private _electron: Electron;
+
+  static fetchImages() {
+    if (!Obsticle.topObsticleImg) {
+      const img = new Image();
+      fromEvent(img, 'load').subscribe(() => {
+        Obsticle.topObsticleImg = img;
+      });
+      img.src = OBSTICLE_TOP_IMAGE;
+    }
+
+    if (!Obsticle.bottomObsticleImg) {
+      const img = new Image();
+      fromEvent(img, 'load').subscribe(() => {
+        Obsticle.bottomObsticleImg = img;
+      });
+      img.src = OBSTICLE_BOTTOM_IMAGE;
+    }
+  }
 
   get centerX() {
     return this._topObsticleBounds.x + OBSTICLE_WIDTH / 2;
@@ -55,28 +74,14 @@ class Obsticle extends Component<IObsticleProps> {
 
   onCreate(): void {
     this._passed = false;
+
     this._centerYRelative =
       OBSTICLE_MARIGIN_Y + Math.random() * (1 - OBSTICLE_MARIGIN_Y);
 
     this._centerY = this._centerYRelative * this.context.canvas.height;
-
     const centerX = this.context.canvas.width + OBSTICLE_STARTING_POS;
 
-    if (!Obsticle.topObsticleImg) {
-      const img = new Image();
-      fromEvent(img, 'load').subscribe(() => {
-        Obsticle.topObsticleImg = img;
-      });
-      img.src = OBSTICLE_TOP_IMAGE;
-    }
-
-    if (!Obsticle.bottomObsticleImg) {
-      const img = new Image();
-      fromEvent(img, 'load').subscribe(() => {
-        Obsticle.bottomObsticleImg = img;
-      });
-      img.src = OBSTICLE_BOTTOM_IMAGE;
-    }
+    Obsticle.fetchImages();
 
     this._topObsticleBounds = {
       x: centerX,
@@ -92,7 +97,7 @@ class Obsticle extends Component<IObsticleProps> {
       height: 0,
     };
 
-    if (Math.floor(Math.random() * 2) === 0) {
+    if (Math.floor(Math.random() * ELECTRON_SPAWN_ODDS) === 1) {
       this.spawnElectron();
     }
   }
@@ -120,22 +125,29 @@ class Obsticle extends Component<IObsticleProps> {
     this._topObsticleBounds.height = obsticleHeight;
     this._bottomObsticleBounds.y = this._centerY + OBSTICLE_WINDOW_HEIGHT / 2;
     this._bottomObsticleBounds.height = obsticleHeight;
+
     if (this._electron) {
+      this._electron.onResize(newWidth, newHeight);
     }
   }
 
   update(delta: number, keysDown: IKeysDown): void {
     if (this.gameState.currentState === GameState.PLAYING) {
       const xTranslation = delta * OBSTICLE_SPEED;
-      this._topObsticleBounds.x -= xTranslation;
-      this._bottomObsticleBounds.x -= xTranslation;
-      if (!this._passed && this.centerX < this.context.canvas.width / 2) {
-        this._passed = true;
-        this.gameState.score++;
-      }
+      this.moveObsticle(xTranslation);
+
       if (this._electron) {
         this._electron.update(delta, keysDown, xTranslation);
       }
+    }
+  }
+
+  moveObsticle(xTranslation: number) {
+    this._topObsticleBounds.x -= xTranslation;
+    this._bottomObsticleBounds.x -= xTranslation;
+    if (!this._passed && this.centerX < this.context.canvas.width / 2) {
+      this._passed = true;
+      this.gameState.score++;
     }
   }
 
@@ -143,12 +155,14 @@ class Obsticle extends Component<IObsticleProps> {
     if (!Obsticle.topObsticleImg || !Obsticle.bottomObsticleImg) {
       return;
     }
+
     drawImage(this.context, Obsticle.topObsticleImg, this._topObsticleBounds);
     drawImage(
       this.context,
       Obsticle.bottomObsticleImg,
       this._bottomObsticleBounds,
     );
+
     if (this._electron) {
       this._electron.render();
     }

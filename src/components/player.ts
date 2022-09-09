@@ -17,22 +17,23 @@ import PLAYER_ANIM_IMG from 'assets/images/player.png';
 
 class Player extends Component {
   private _bounds: IRectangle;
-  private accelerationY: number;
+  private _accelerationY: number;
   private _startY: number;
 
-  private sprite: AnimatedSprite;
+  private _sprite: AnimatedSprite;
 
   get bounds() {
     return this._bounds;
   }
 
   startRound() {
-    this.accelerationY = 0;
+    this._accelerationY = 0;
     this.jump();
   }
 
   jump(): void {
-    this.accelerationY = -JUMP_ACCELERATION * this.gameState.gravityCoefficient;
+    this._accelerationY =
+      -JUMP_ACCELERATION * this.gameState.gravityCoefficient;
   }
 
   die(): void {
@@ -56,12 +57,12 @@ class Player extends Component {
         frameSize: PLAYER_ANIM_FRAME_SIZE,
       };
 
-      this.sprite = new AnimatedSprite(
+      this._sprite = new AnimatedSprite(
         this.context,
         this.gameState,
         spriteProps,
       );
-      this.sprite.bounds = this._bounds;
+      this._sprite.bounds = this._bounds;
     });
     img.src = PLAYER_ANIM_IMG;
   }
@@ -75,10 +76,15 @@ class Player extends Component {
   }
 
   update(delta: number, keysDown: IKeysDown): void {
-    this.sprite && this.sprite.update(delta, keysDown);
+    if (this._sprite) {
+      this._sprite.update(delta, keysDown);
+    }
+
     if (this.gameState.currentState === GameState.PLAYING) {
-      this.accelerationY += GRAVITY * delta * this.gameState.gravityCoefficient;
-      this.bounds.y += this.accelerationY * delta;
+      this._accelerationY +=
+        GRAVITY * delta * this.gameState.gravityCoefficient;
+      this.bounds.y += this._accelerationY * delta;
+
       if (keysDown['Space']) {
         this.jump();
       }
@@ -87,7 +93,9 @@ class Player extends Component {
 
   render(): void {
     if (this.gameState.currentState !== GameState.ENTER_NICKNAME) {
-      this.sprite && this.sprite.render();
+      if (this._sprite) {
+        this._sprite.render();
+      }
     }
   }
 }

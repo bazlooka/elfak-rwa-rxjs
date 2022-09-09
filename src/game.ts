@@ -102,11 +102,13 @@ class Game {
     this.obsticleSubscription = this.obsticles$.subscribe((obsticle) => {
       this.obsticles.push(obsticle);
     });
+
     this.electricFieldSubscription = this.electricField$.subscribe(
       (electricField) => {
         this.electricFields.push(electricField);
       },
     );
+
     this.player.startRound();
     this.gameState.currentState = GameState.PLAYING;
     this.gameState.score = 0;
@@ -117,6 +119,7 @@ class Game {
     this.obsticleSubscription.unsubscribe();
     this.electricFields = [];
     this.electricFieldSubscription.unsubscribe();
+
     this.player.die();
     this.gameState.currentState = GameState.GAME_OVER;
     this.gameState.gravityCoefficient = 1;
@@ -134,17 +137,8 @@ class Game {
       case GameState.PLAYING:
         this.obsticles = filterPassedObsticles(this.obsticles);
         this.electricFields = filterPassedElectircFields(this.electricFields);
-        if (
-          hasPlayerCollided(this.player, this.obsticles) ||
-          isPlayerOffscreen(this.player, this.context.canvas.height)
-        ) {
-          this.die();
-        }
-        if (isPlayerInElecticField(this.player, this.electricFields)) {
-          this.gameState.gravityCoefficient = -0.75;
-        } else {
-          this.gameState.gravityCoefficient = 1;
-        }
+        this.detectCollision();
+        this.detectElectricFiled();
         break;
       case GameState.READY:
       case GameState.GAME_OVER:
@@ -152,6 +146,23 @@ class Game {
           this.startRound();
         }
         break;
+    }
+  }
+
+  detectCollision() {
+    if (
+      hasPlayerCollided(this.player, this.obsticles) ||
+      isPlayerOffscreen(this.player, this.context.canvas.height)
+    ) {
+      this.die();
+    }
+  }
+
+  detectElectricFiled() {
+    if (isPlayerInElecticField(this.player, this.electricFields)) {
+      this.gameState.gravityCoefficient = -0.75;
+    } else {
+      this.gameState.gravityCoefficient = 1;
     }
   }
 

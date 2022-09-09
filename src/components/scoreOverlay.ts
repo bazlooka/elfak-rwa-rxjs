@@ -123,14 +123,15 @@ class ScoreOverlay extends Component {
   }
 
   renderDarkenScreen() {
-    this.context.fillStyle = 'rgba(1, 1, 1, 0.3)';
+    this.context.globalAlpha = 0.3;
+    this.context.fillStyle = 'black';
     this.context.fillRect(
       0,
       0,
       this.context.canvas.width,
       this.context.canvas.height,
     );
-    this.context.fillStyle = 'rgba(1, 1, 1, 1)';
+    this.context.globalAlpha = 1;
   }
 }
 

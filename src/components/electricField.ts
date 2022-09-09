@@ -1,7 +1,9 @@
 import { fromEvent } from 'rxjs';
 
 import {
-  ELECTRIC_FIELD_ASPECT_RATIO,
+  EF_ASPECT_RATIO,
+  EF_SCALE,
+  EF_VERTICAL_SPEED,
   OBSTICLE_SPEED,
   OBSTICLE_STARTING_POS,
 } from 'config';
@@ -33,11 +35,12 @@ class ElectricField extends Component<IObsticleProps> {
       });
       img.src = ELECTRIC_FIELD_IMG;
     }
+
     this._bounds = {
       x: this.context.canvas.width + OBSTICLE_STARTING_POS,
       y: 0,
-      width: this.context.canvas.height * ELECTRIC_FIELD_ASPECT_RATIO * 2,
-      height: this.context.canvas.height * 2,
+      width: this.context.canvas.height * EF_ASPECT_RATIO * EF_SCALE,
+      height: this.context.canvas.height * EF_SCALE,
     };
   }
 
@@ -46,7 +49,7 @@ class ElectricField extends Component<IObsticleProps> {
   update(delta: number, keysDown: IKeysDown): void {
     if (this.gameState.currentState === GameState.PLAYING) {
       this._bounds.x -= delta * OBSTICLE_SPEED;
-      this._bounds.y -= delta * 50;
+      this._bounds.y -= delta * EF_VERTICAL_SPEED;
     }
   }
 
