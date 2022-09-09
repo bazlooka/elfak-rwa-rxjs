@@ -21,6 +21,7 @@ export const INITIAL_GAME_STATE: IGameState = {
     highscore: 0,
     electrons: 0,
   },
+  gravityCoefficient: 1,
 };
 
 export const API_URL = 'http://localhost:3000';
@@ -46,14 +47,17 @@ export const OBSTICLE_ASPECT_RATIO = 14;
 export const OBSTICLE_SPAWN_INTERVAL_MS = 2000;
 export const OBSTICLE_STARTING_POS = 30;
 export const OBSTICLE_WIDTH = 60;
-export const OBSTICLE_WINDOW_HEIGHT = 160;
+export const OBSTICLE_WINDOW_HEIGHT = 320; //160
 export const OBSTICLE_SPEED = 300;
-export const OBSTICLE_MARIGIN_Y = 0.15;
+export const OBSTICLE_MARIGIN_Y = 0.25;
 export const OBSTICLE_OFFSCREEN_THRESHOLD = 50;
 
 export const ELECTRON_SIZE = 30;
 export const ELECTRON_ANIM_FRAME_DURATION = 1 / 13;
 export const ELECTRON_ANIM_FRAME_COUNT = 7;
 export const ELECTRON_ANIM_FRAME_SIZE = 15;
+
+export const ELECTRIC_FIELD_ASPECT_RATIO = 1.665;
+export const ELECTRIC_FIELD_SPAWN_INTERVAL_MS = 6000;
 
 export const BACKGROUND_ASPECT_RATIO = 3.125;

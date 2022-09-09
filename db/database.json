@@ -2,8 +2,8 @@
   "players": [
     {
       "nickname": "luka",
-      "highscore": 7,
-      "electrons": 16,
+      "highscore": 54,
+      "electrons": 153,
       "id": 2
     },
     {
@@ -16,6 +16,18 @@
       "id": 4,
       "nickname": "player2",
       "highscore": 6,
+      "electrons": 0
+    },
+    {
+      "id": 5,
+      "nickname": "luka123",
+      "highscore": 1,
+      "electrons": 0
+    },
+    {
+      "id": 5,
+      "nickname": "player7",
+      "highscore": 4,
       "electrons": 0
     }
   ]

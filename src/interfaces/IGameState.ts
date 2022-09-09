@@ -5,4 +5,5 @@ export interface IGameState {
   currentState: GameState;
   score: number;
   player: IPlayerProfile;
+  gravityCoefficient: number;
 }

@@ -33,7 +33,7 @@ class Player extends Component {
   }
 
   jump(): void {
-    this.accelerationY = -JUMP_ACCELERATION;
+    this.accelerationY = -JUMP_ACCELERATION * this.gameState.gravityCoefficient;
   }
 
   die(): void {
@@ -78,7 +78,7 @@ class Player extends Component {
   update(delta: number, keysDown: IKeysDown): void {
     this.sprite && this.sprite.update(delta, keysDown);
     if (this.gameState.currentState === GameState.PLAYING) {
-      this.accelerationY += GRAVITY * delta;
+      this.accelerationY += GRAVITY * delta * this.gameState.gravityCoefficient;
       this.bounds.y += this.accelerationY * delta;
 
       if (keysDown['Space']) {

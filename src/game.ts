@@ -11,10 +11,16 @@ import {
   isPlayerOffscreen,
   filterPassedObsticles,
   putPlayerProfile,
+  isPlayerInElecticField,
 } from 'services';
 import { GameState } from 'enums';
 import { EnterNickname } from 'components/enterNickname';
 import { Leaderboard } from 'components/leaderboard';
+import { ElectricField } from 'components/electricField';
+import {
+  filterPassedElectircFields,
+  startSpawningElectricFields,
+} from 'services/electricFieldSpawner';
 
 class Game {
   private readonly container: HTMLCanvasElement;
@@ -33,6 +39,10 @@ class Game {
   private obsticles: Obsticle[];
   private obsticleSubscription: Subscription;
 
+  private electricField$: Observable<ElectricField>;
+  private electricFields: ElectricField[];
+  private electricFieldSubscription: Subscription;
+
   constructor(container: HTMLCanvasElement) {
     if (!container.getContext) {
       throw new Error('Canvas is not supported in this browser');
@@ -49,6 +59,7 @@ class Game {
     this.enterNickname = new EnterNickname(context, this.gameState);
     this.leaderboard = new Leaderboard(context, this.gameState);
     this.obsticles = [];
+    this.electricFields = [];
     this.backgrounds = [];
   }
 
@@ -76,12 +87,23 @@ class Game {
       this.gameState,
       this.player,
     );
+
+    this.electricField$ = startSpawningElectricFields(
+      this.context,
+      this.gameState,
+      this.player,
+    );
   }
 
   startRound() {
     this.obsticleSubscription = this.obsticles$.subscribe((obsticle) => {
       this.obsticles.push(obsticle);
     });
+    this.electricFieldSubscription = this.electricField$.subscribe(
+      (electricField) => {
+        this.electricFields.push(electricField);
+      },
+    );
     this.player.startRound();
     this.gameState.currentState = GameState.PLAYING;
     this.gameState.score = 0;
@@ -90,8 +112,11 @@ class Game {
   die(): void {
     this.obsticles = [];
     this.obsticleSubscription.unsubscribe();
+    this.electricFields = [];
+    this.electricFieldSubscription.unsubscribe();
     this.player.die();
     this.gameState.currentState = GameState.GAME_OVER;
+    this.gameState.gravityCoefficient = 1;
 
     if (this.gameState.score > this.gameState.player.highscore) {
       this.gameState.player.highscore = this.gameState.score;
@@ -105,11 +130,17 @@ class Game {
     switch (this.gameState.currentState) {
       case GameState.PLAYING:
         this.obsticles = filterPassedObsticles(this.obsticles);
+        this.electricFields = filterPassedElectircFields(this.electricFields);
         if (
           hasPlayerCollided(this.player, this.obsticles) ||
           isPlayerOffscreen(this.player, this.context.canvas.height)
         ) {
           this.die();
+        }
+        if (isPlayerInElecticField(this.player, this.electricFields)) {
+          this.gameState.gravityCoefficient = -0.75;
+        } else {
+          this.gameState.gravityCoefficient = 1;
         }
         break;
       case GameState.READY:
@@ -142,6 +173,9 @@ class Game {
     this.backgrounds.forEach((background) => {
       background.update(deltaTime);
     });
+    this.electricFields.forEach((electricField) => {
+      electricField.update(deltaTime, keysDown);
+    });
     this.obsticles.forEach((obsticle) => {
       obsticle.update(deltaTime, keysDown);
     });
@@ -160,6 +194,9 @@ class Game {
 
     this.backgrounds.forEach((background) => {
       background.render();
+    });
+    this.electricFields.forEach((electricField) => {
+      electricField.render();
     });
     this.obsticles.forEach((obsticle) => {
       obsticle.render();

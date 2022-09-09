@@ -1,4 +1,5 @@
 import { Obsticle, Player } from 'components';
+import { ElectricField } from 'components/electricField';
 import { OFFSCREEN_THRESHOLD } from 'config';
 
 import { areRectanglesColliding } from './rectCollisionDetection';
@@ -19,4 +20,13 @@ const isPlayerOffscreen = (player: Player, canvasHeight: number): boolean => {
   );
 };
 
-export { hasPlayerCollided, isPlayerOffscreen };
+const isPlayerInElecticField = (
+  player: Player,
+  electricFields: ElectricField[],
+): boolean => {
+  return electricFields.some((electricField) => {
+    return areRectanglesColliding(player.bounds, electricField.bounds);
+  });
+};
+
+export { hasPlayerCollided, isPlayerOffscreen, isPlayerInElecticField };
